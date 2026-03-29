@@ -40,10 +40,10 @@ the course milestones.
 
 ## 📝 Initial Commits
 
-- https://github.com/tabba3o/Software-engineering-project - Mohammad Tabba'a - Group 7 - 9d93f95
-- https://github.com/tabba3o/Software-engineering-project - Tala Hammouri - Group 7 - ea4e21c
-- https://github.com/tabba3o/Software-engineering-project - Lojain Hamdan - Group 7 - bc6c7e9
-- https://github.com/tabba3o/Software-engineering-project - Jude Altheeb - Group 7 - 57d83b6
+- Group 7 - https://github.com/tabba3o/Software-engineering-project - Mohammad Tabba'a - 9d93f95
+- Group 7 - https://github.com/tabba3o/Software-engineering-project - Tala Hammouri - ea4e21c
+- Group 7 - https://github.com/tabba3o/Software-engineering-project - Lojain Hamdan - bc6c7e9
+- Group 7 - https://github.com/tabba3o/Software-engineering-project - Jude Altheeb - 57d83b6
 
 ---
 
