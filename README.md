@@ -6,13 +6,14 @@
 
 ---
 
-## Group Members
+## 👥 Group Members
 
 | Name | GitHub Username |
 |------|----------------|
 | Mohammad Tabba'a | [@tabba3o](https://github.com/tabba3o) |
 | Tala Hammouri | [@talahammouri](https://github.com/talahammouri) |
 | Lojain Hamdan | [@lujainmurad](https://github.com/lujainmurad) |
+| Jude Altheeb | [@jude189](https://github.com/jude189) |
 
 ---
 
@@ -42,6 +43,7 @@ the course milestones.
 - https://github.com/tabba3o/Software-engineering-project - Mohammad Tabba'a - Group 7 - 9d93f95
 - https://github.com/tabba3o/Software-engineering-project - Tala Hammouri - Group 7 - ea4e21c
 - https://github.com/tabba3o/Software-engineering-project - Lojain Hamdan - Group 7 - bc6c7e9
+- https://github.com/tabba3o/Software-engineering-project - Jude Altheeb - Group 7 - INITIAL_COMMIT_ID
 
 ---
 
