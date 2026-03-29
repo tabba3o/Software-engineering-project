@@ -13,7 +13,7 @@
 | Mohammad Tabba'a | [@tabba3o](https://github.com/tabba3o) |
 | Tala Hammouri | [@talahammouri](https://github.com/talahammouri) |
 | Lojain Hamdan | [@lujainmurad](https://github.com/lujainmurad) |
-| Jude Altheeb | [@jude189](https://github.com/jude189) |
+| Jude Mamoon | [@jude189](https://github.com/jude189) |
 
 ---
 
@@ -43,7 +43,7 @@ the course milestones.
 - Group 7 - https://github.com/tabba3o/Software-engineering-project - Mohammad Tabba'a - 9d93f95
 - Group 7 - https://github.com/tabba3o/Software-engineering-project - Tala Hammouri - ea4e21c
 - Group 7 - https://github.com/tabba3o/Software-engineering-project - Lojain Hamdan - bc6c7e9
-- Group 7 - https://github.com/tabba3o/Software-engineering-project - Jude Altheeb - 57d83b6
+- Group 7 - https://github.com/tabba3o/Software-engineering-project - Jude Mamoon - 57d83b6
 
 ---
 
