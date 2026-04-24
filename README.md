@@ -101,7 +101,7 @@ All diagram sources are stored as `.puml` files under `/uml/` and exported to `.
 
 | Member | Number of Commits |
 | :--- | :---: |
-| *Mohammad Tabba'a* | *8* |
-| *Tala Hammouri* | *8* |
-| *Lojain Hamdan* | *8* |
-| *Jude Mamoon* | *8* |
+| *Mohammad Tabba'a* | *6* |
+| *Tala Hammouri* | *5* |
+| *Lojain Hamdan* | *6* |
+| *Jude Mamoon* | *6* |
