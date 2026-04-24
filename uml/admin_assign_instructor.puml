@@ -1,0 +1,46 @@
+@startuml AdminAssignInstructor
+title Use Case: Assign Instructor to Course — Learning Management System
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor #E8E8E8
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+skinparam rectangle {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Administrator"                  as Admin
+actor "Instructor"                     as Instructor
+actor "Email &\nNotification\nService" as NS
+
+rectangle "Learning Management System" {
+  usecase "Remove Previous\nInstructor"    as UC_REMOVE
+  usecase "Assign Instructor\nto Course"   as UC_ASSIGN
+  usecase "Log In"                         as UC_LOGIN
+  usecase "Select Course\nOffering"        as UC_COURSE
+  usecase "Select Instructor"              as UC_SELECT
+  usecase "Send Assignment\nNotification"  as UC_NOTIFY
+}
+
+Admin --> UC_ASSIGN
+
+UC_REMOVE ..> UC_ASSIGN : <<extend>>
+
+UC_ASSIGN ..> UC_LOGIN  : <<include>>
+UC_ASSIGN ..> UC_COURSE : <<include>>
+UC_ASSIGN ..> UC_SELECT : <<include>>
+UC_ASSIGN ..> UC_NOTIFY : <<include>>
+
+UC_NOTIFY --> NS
+UC_NOTIFY --> Instructor
+
+@enduml

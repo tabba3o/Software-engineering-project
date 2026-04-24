@@ -1,0 +1,48 @@
+@startuml AdminGenerateReport
+title Use Case: Generate Platform Report — Learning Management System
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor #E8E8E8
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+skinparam rectangle {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Administrator"                  as Admin
+actor "File Storage\nService"          as FS
+actor "Email &\nNotification\nService" as NS
+
+rectangle "Learning Management System" {
+  usecase "Export as PDF"             as UC_PDF
+  usecase "Email Report\nto Stakeholders" as UC_EMAIL
+  usecase "Generate Platform\nReport" as UC_GEN
+  usecase "Log In"                    as UC_LOGIN
+  usecase "Select Report Type"        as UC_TYPE
+  usecase "Aggregate\nPlatform Data"  as UC_AGG
+  usecase "Store Generated\nReport"   as UC_STORE
+}
+
+Admin --> UC_GEN
+
+UC_PDF   ..> UC_GEN : <<extend>>
+UC_EMAIL ..> UC_GEN : <<extend>>
+
+UC_GEN ..> UC_LOGIN : <<include>>
+UC_GEN ..> UC_TYPE  : <<include>>
+UC_GEN ..> UC_AGG   : <<include>>
+UC_GEN ..> UC_STORE : <<include>>
+
+UC_STORE --> FS
+UC_EMAIL --> NS
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml AdminEnrollStudent
+title Use Case: Enroll Student in Course — Learning Management System
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor #E8E8E8
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+skinparam rectangle {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Administrator"                           as Admin
+actor "Student"                                 as Student
+actor "University Student\nInformation System"  as SIS
+actor "Email &\nNotification\nService"          as NS
+
+rectangle "Learning Management System" {
+  usecase "Import Enrollment\nfrom SIS"      as UC_IMPORT
+  usecase "Create User\nAccount"             as UC_CREATE
+  usecase "Enroll Student\nin Course"        as UC_ENROLL
+  usecase "Log In"                           as UC_LOGIN
+  usecase "Update Course\nRoster"            as UC_ROSTER
+  usecase "Send Enrollment\nNotification"    as UC_NOTIFY
+}
+
+Admin --> UC_ENROLL
+
+UC_IMPORT ..> UC_ENROLL : <<extend>>
+UC_CREATE ..> UC_ENROLL : <<extend>>
+
+UC_ENROLL ..> UC_LOGIN  : <<include>>
+UC_ENROLL ..> UC_ROSTER : <<include>>
+UC_ENROLL ..> UC_NOTIFY : <<include>>
+
+UC_IMPORT --> SIS
+UC_NOTIFY --> NS
+UC_NOTIFY --> Student
+
+@enduml

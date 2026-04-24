@@ -1,0 +1,51 @@
+@startuml C4_Context_LMS
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' ── Hide legend ──────────────────────────────────────────
+
+
+' ── Global sizing ────────────────────────────────────────
+skinparam defaultFontSize 10
+skinparam defaultFontStyle plain
+skinparam wrapWidth 180
+skinparam padding 4
+skinparam nodesep 60
+skinparam ranksep 60
+
+
+' ── Title ────────────────────────────────────────────────
+title System Context Diagram: Learning Management System
+LAYOUT_WITH_LEGEND()
+
+show stereotype
+' ── People ───────────────────────────────────────────────
+Person(student, "Student", "A learner who accesses course resources, submits assignments, and views performance reports.")
+
+Person(instructor, "Instructor", "A faculty member who uploads lecture materials, creates assessments, and manages student grades.")
+
+Person(administrator, "Administrator", "A staff member who manages user accounts, course offerings, and system configuration.")
+
+' ── System in Scope ──────────────────────────────────────
+System(lms, "Learning Management System", "Allows students and instructors to manage course content, submit and grade assignments, and distribute feedback online.")
+
+' ── External Systems ─────────────────────────────────────
+System_Ext(emailNotification, "Email & Notification Service", "Sends email alerts and push notifications for assignment deadlines and instructor feedback.")
+
+System_Ext(authSystem, "Authentication System", "Provides identity verification and user login via university SSO or LDAP.")
+
+System_Ext(sis, "University Student Information System", "Manages student enrollment records, academic history, course registrations, and grade transfers.")
+
+' ── Relationships ────────────────────────────────────────
+Rel(student, lms, "Accesses course resources, submits assignments, and views performance reports using")
+Rel(instructor, lms, "Uploads lecture materials, creates assessments, and manages grades using")
+Rel(administrator, lms, "Manages user accounts, course offerings, and system configuration using")
+
+Rel(lms, emailNotification, "Sends deadline reminders and feedback notifications via")
+Rel(lms, authSystem, "Authenticates and verifies user identities via")
+Rel(lms, sis, "Syncs student enrollment, academic records, and grade data with")
+
+' ── Footer ───────────────────────────────────────────────
+center footer System Context View: Learning Management System | Group 07 – CS13477
+
+@enduml

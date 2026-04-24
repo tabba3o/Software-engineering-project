@@ -1,0 +1,116 @@
+@startuml C4_L2_Container_LMS
+
+' ══════════════════════════════════════════════════════════════════
+' C4 Level 2 — Container Diagram
+' Learning Management System | Group 07 — CS13477
+'
+' Design notes:
+'   • Structure follows the course's e-commerce C4 L2 reference and
+'     Simon Brown's Internet Banking L2 pattern:
+'       Persons → Web App → Backend API → DB + Object Store + Externals
+'   • Static asset delivery (CDN / Nginx) is treated as an L3 /
+'     deployment concern, not a distinct L2 container.
+'   • Asynchronous notification dispatch (broker, worker process) is
+'     treated as an L3 component-level concern of the Backend API.
+'     At L2 we expose only the architectural capability: the system
+'     sends notifications to an external email service.
+'   • Every edge that exists at L1 keeps the same verb phrase here;
+'     L2 only adds the protocol detail.
+'   • Every box is a separately runnable/deployable unit (the L2 bar)
+'     and represents an architectural capability, not infrastructure.
+' ══════════════════════════════════════════════════════════════════
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' ══════════════════════════════════════════════════════════════════
+' Skin
+' ══════════════════════════════════════════════════════════════════
+skinparam defaultFontName     "Arial"
+skinparam defaultFontSize     12
+skinparam wrapWidth           200
+skinparam maxMessageSize      200
+skinparam backgroundColor     white
+skinparam shadowing           false
+skinparam stereotypeFontSize  11
+skinparam stereotypeFontStyle italic
+
+skinparam arrow {
+    Color     #444444
+    FontColor #333333
+    FontSize  11
+}
+
+' ══════════════════════════════════════════════════════════════════
+' Title + Layout
+' ══════════════════════════════════════════════════════════════════
+title Container Diagram: Learning Management System
+
+LAYOUT_WITH_LEGEND()
+show stereotype
+
+' ══════════════════════════════════════════════════════════════════
+' PERSONS — order matches L1: Student | Instructor | Administrator
+' ══════════════════════════════════════════════════════════════════
+Person(student,    "Student",       "A learner who accesses course resources, submits assignments, and views performance reports.")
+Person(instructor, "Instructor",    "A faculty member who uploads lecture materials, creates assessments, and manages student grades.")
+Person(admin,      "Administrator", "A staff member who manages user accounts, course offerings, and system configuration.")
+
+' ══════════════════════════════════════════════════════════════════
+' SYSTEM BOUNDARY
+' ══════════════════════════════════════════════════════════════════
+System_Boundary(lms, "Learning Management System") {
+
+    ' ── Single-Page Web Application
+    Container(webApp,      "Web Application",      "React.js / Single-Page Application",  "Runs in the browser. Provides course browsing, assignment submission, grading, and configuration UI.")
+
+    ' ── Backend API
+    ' Django is the de-facto LMS backend stack (edX, Open edX).
+    Container(apiServer,   "Backend API Server",   "Python / Django",                     "Central server handling all business logic: user management, course operations, assignment lifecycle, grading, and notification dispatch.")
+
+    ' ── Primary Database
+    ContainerDb(database,  "Relational Database",  "PostgreSQL",                          "Centralized store for users, courses, assignments, submissions, grades, and audit logs.")
+
+    ' ── Object File Storage
+    ' Files don't belong in the relational DB. Mirrors Simon Brown's Statement Store pattern.
+    Container(fileStorage, "File Storage Service", "Object Storage / AWS S3",             "Stores and serves uploaded lecture materials, assignment attachments, and student submission files.")
+}
+
+' ══════════════════════════════════════════════════════════════════
+' EXTERNAL SYSTEMS — same order as L1
+' ══════════════════════════════════════════════════════════════════
+System_Ext(emailSvc, "Email & Notification Service",          "Sends email alerts and push notifications for assignment deadlines and instructor feedback.")
+System_Ext(authSys,  "Authentication System",                 "Provides identity verification and user login via university SSO or LDAP.")
+System_Ext(usis,     "University Student Information System", "Manages student enrollment records, academic history, course registrations, and grade transfers.")
+
+' ══════════════════════════════════════════════════════════════════
+' RELATIONSHIPS — Persons interact with the Web Application
+' Verb phrases match L1 exactly; only the protocol is added.
+' ══════════════════════════════════════════════════════════════════
+Rel(student,    webApp, "Accesses course resources, submits assignments, and views performance reports using", "HTTPS")
+Rel(instructor, webApp, "Uploads lecture materials, creates assessments, and manages grades using",            "HTTPS")
+Rel(admin,      webApp, "Manages user accounts, course offerings, and system configuration using",             "HTTPS")
+
+' ══════════════════════════════════════════════════════════════════
+' RELATIONSHIPS — SPA to Backend
+' ══════════════════════════════════════════════════════════════════
+Rel(webApp, apiServer, "Makes API calls for courses, grades, submissions, and authentication", "HTTPS / JSON")
+
+' ══════════════════════════════════════════════════════════════════
+' RELATIONSHIPS — Backend to internal containers
+' ══════════════════════════════════════════════════════════════════
+Rel(apiServer, database,    "Reads and writes users, courses, assignments, grades, and submissions via", "SQL")
+Rel(apiServer, fileStorage, "Stores and retrieves lecture materials and submission files via",           "HTTPS / S3 API")
+
+' ══════════════════════════════════════════════════════════════════
+' RELATIONSHIPS — Internal to External Systems
+' Verb phrases match L1 arrow labels exactly; protocol tag added.
+' ══════════════════════════════════════════════════════════════════
+Rel(apiServer, emailSvc, "Sends deadline reminders and feedback notifications via",        "HTTPS / SMTP")
+Rel(apiServer, authSys,  "Authenticates and verifies user identities via",                 "HTTPS / LDAP")
+Rel(apiServer, usis,     "Syncs student enrollment, academic records, and grade data with","HTTPS / JSON")
+
+' ══════════════════════════════════════════════════════════════════
+' Footer — mirrors L1 footer exactly
+' ══════════════════════════════════════════════════════════════════
+center footer Container View: Learning Management System | Group 07 - CS13477
+
+@enduml
