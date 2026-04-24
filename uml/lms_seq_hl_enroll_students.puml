@@ -1,0 +1,78 @@
+@startuml
+
+actor Administrator
+actor Student
+actor Instructor
+participant Frontend
+participant Backend
+participant "University Student\nInformation System" as SIS
+participant "Email & Notification\nService" as Notification
+
+' Login & Navigation Flow
+Administrator -> Frontend: Log In to LMS
+activate Frontend
+Frontend -> Backend: Authenticate User
+activate Backend
+Backend --> Frontend: Login Successful
+deactivate Backend
+Administrator -> Frontend: Navigate to Enrollment Management
+Administrator -> Frontend: Search Student by Name or ID
+Frontend -> Backend: Search Student Records
+activate Backend
+Backend --> Frontend: Display Student Results
+deactivate Backend
+Administrator -> Frontend: Select Student & Browse Course Offerings
+Frontend -> Backend: Request Course Offerings
+activate Backend
+Backend --> Frontend: Display Available Courses
+deactivate Backend
+Administrator -> Frontend: Select Target Course
+deactivate Frontend
+
+' Prerequisite Check Flow
+Frontend -> Backend: Check Student Prerequisites
+activate Frontend
+activate Backend
+Backend -> SIS: Fetch Student Academic Record
+activate SIS
+SIS --> Backend: Student Academic Record
+deactivate SIS
+Backend --> Frontend: Display Prerequisite Check Result
+deactivate Backend
+Administrator -> Frontend: Confirm or Override Prerequisites
+deactivate Frontend
+
+' Seat Availability Flow
+Frontend -> Backend: Check Seat Availability
+activate Frontend
+activate Backend
+Backend --> Frontend: Seat Availability Status
+deactivate Backend
+Administrator -> Frontend: Confirm Enrollment or Add to Waitlist
+Frontend -> Backend: Submit Enrollment or Waitlist Request
+activate Backend
+Backend --> Frontend: Enrollment or Waitlist Confirmed
+deactivate Backend
+deactivate Frontend
+
+' SIS Sync Flow
+Backend -> SIS: Sync Enrollment Record
+activate Backend
+activate SIS
+SIS --> Backend: Sync Confirmed
+deactivate SIS
+deactivate Backend
+
+' Notification & Audit Flow
+Backend -> Notification: Send Enrollment Confirmation to Student
+activate Notification
+Backend -> Notification: Update Instructor Course Roster
+Notification --> Student: Receive Enrollment Confirmation Email
+Notification --> Instructor: View Updated Course Roster
+deactivate Notification
+Backend --> Frontend: Log Enrollment Action in Audit Trail
+Student -> Frontend: Access Course Dashboard & Materials
+activate Frontend
+deactivate Frontend
+
+@enduml

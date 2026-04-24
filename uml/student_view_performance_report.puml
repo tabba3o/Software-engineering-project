@@ -1,0 +1,41 @@
+@startuml StudentViewPerformanceReport
+title Use Case: View Course Performance Report — Learning Management System
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor #E8E8E8
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+skinparam rectangle {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Student" as Student
+
+rectangle "Learning Management System" {
+  usecase "Export Report\nas PDF"              as UC_EXPORT
+  usecase "View Course\nPerformance Report"    as UC_VIEW
+  usecase "Log In"                             as UC_LOGIN
+  usecase "Select Course"                      as UC_SELECT
+  usecase "Aggregate\nAssignment Grades"       as UC_AGG
+  usecase "Calculate\nCourse Grade"            as UC_CALC
+}
+
+Student --> UC_VIEW
+
+UC_EXPORT ..> UC_VIEW : <<extend>>
+
+UC_VIEW ..> UC_LOGIN  : <<include>>
+UC_VIEW ..> UC_SELECT : <<include>>
+UC_VIEW ..> UC_AGG    : <<include>>
+UC_VIEW ..> UC_CALC   : <<include>>
+
+@enduml

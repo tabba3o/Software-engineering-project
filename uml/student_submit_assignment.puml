@@ -1,0 +1,46 @@
+@startuml StudentSubmitAssignment
+title Use Case: Submit Assignment — Learning Management System
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor #E8E8E8
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+skinparam rectangle {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Student"                         as Student
+actor "File Storage\nService"           as FS
+actor "Email &\nNotification\nService"  as NS
+
+rectangle "Learning Management System" {
+  usecase "Flag Late\nSubmission"       as UC_LATE
+  usecase "Submit Assignment"           as UC_SUBMIT
+  usecase "Log In"                      as UC_LOGIN
+  usecase "Select Assignment"           as UC_SELECT
+  usecase "Store Submission\nFile"      as UC_STORE
+  usecase "Send Submission\nReceipt"    as UC_RECEIPT
+}
+
+Student --> UC_SUBMIT
+
+UC_LATE ..> UC_SUBMIT : <<extend>>
+
+UC_SUBMIT ..> UC_LOGIN   : <<include>>
+UC_SUBMIT ..> UC_SELECT  : <<include>>
+UC_SUBMIT ..> UC_STORE   : <<include>>
+UC_SUBMIT ..> UC_RECEIPT : <<include>>
+
+UC_STORE   --> FS
+UC_RECEIPT --> NS
+
+@enduml

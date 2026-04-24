@@ -1,0 +1,44 @@
+@startuml StudentAccessCourseMaterials
+title Use Case: Access Course Materials — Learning Management System
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor #E8E8E8
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+skinparam rectangle {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Student"               as Student
+actor "File Storage\nService" as FS
+
+rectangle "Learning Management System" {
+  usecase "Download\nMaterial"         as UC_DOWNLOAD
+  usecase "Access Course\nMaterials"   as UC_ACCESS
+  usecase "Log In"                     as UC_LOGIN
+  usecase "Select Course"              as UC_SELECT
+  usecase "Retrieve\nMaterial File"    as UC_RETRIEVE
+  usecase "Log Material\nView"         as UC_LOG
+}
+
+Student --> UC_ACCESS
+
+UC_DOWNLOAD ..> UC_ACCESS : <<extend>>
+
+UC_ACCESS ..> UC_LOGIN    : <<include>>
+UC_ACCESS ..> UC_SELECT   : <<include>>
+UC_ACCESS ..> UC_RETRIEVE : <<include>>
+UC_ACCESS ..> UC_LOG      : <<include>>
+
+UC_RETRIEVE --> FS
+
+@enduml

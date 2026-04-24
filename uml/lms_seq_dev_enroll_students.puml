@@ -1,0 +1,220 @@
+@startuml
+
+actor Administrator
+actor Student
+actor Instructor
+participant "Web UI" as UI
+participant "API Gateway" as API
+participant "Enrollment Service" as EnrollSvc
+database "Relational Database" as DB
+participant "University Student\nInformation System" as SIS
+participant "Email & Notification\nService" as Notify
+
+' Login & Navigation Phase
+== Login & Navigation ==
+Administrator -> UI: Enter Credentials
+activate UI
+UI -> API: POST /auth/login
+activate API
+API -> DB: Verify user credentials
+activate DB
+DB --> API: User record + role
+deactivate DB
+API --> UI: 200 OK + Auth Token
+deactivate API
+Administrator -> UI: Navigate to Enrollment Management
+Administrator -> UI: Search student (by name or ID)
+UI -> API: GET /users?role=student&query={searchTerm}
+activate API
+API -> EnrollSvc: searchStudents(query)
+activate EnrollSvc
+EnrollSvc -> DB: Query student records by name or ID
+activate DB
+DB --> EnrollSvc: Matching student records
+deactivate DB
+EnrollSvc --> API: Student list
+deactivate EnrollSvc
+API --> UI: Display student results
+deactivate API
+Administrator -> UI: Select student from results
+Administrator -> UI: Browse available course offerings
+UI -> API: GET /courses?status=active
+activate API
+API -> EnrollSvc: getCourseOfferings()
+activate EnrollSvc
+EnrollSvc -> DB: Query active course offerings
+activate DB
+DB --> EnrollSvc: Course records with seat counts
+deactivate DB
+EnrollSvc --> API: Course offerings list
+deactivate EnrollSvc
+API --> UI: Display available courses
+deactivate API
+Administrator -> UI: Select target course
+deactivate UI
+
+' Prerequisite Check Phase
+== Prerequisite Check ==
+UI -> API: GET /students/{studentId}/academic-record
+activate UI
+activate API
+API -> EnrollSvc: getAcademicRecord(studentId)
+activate EnrollSvc
+EnrollSvc -> SIS: fetchAcademicRecord(studentId)
+activate SIS
+SIS --> EnrollSvc: Student academic record
+deactivate SIS
+EnrollSvc -> DB: Query course prerequisites for courseId
+activate DB
+DB --> EnrollSvc: Prerequisite list
+deactivate DB
+EnrollSvc --> API: Academic record + prerequisite check result
+deactivate EnrollSvc
+API --> UI: Display academic record & prerequisite status
+deactivate API
+
+alt Prerequisites Not Met
+    UI --> Administrator: Display missing prerequisites
+    alt Administrator Overrides Prerequisites
+        Administrator -> UI: Log override justification
+        UI -> API: POST /enrollments/override
+        activate API
+        API -> EnrollSvc: logOverride(adminId, studentId, courseId, justification)
+        activate EnrollSvc
+        EnrollSvc -> DB: INSERT INTO enrollment_overrides (adminId, studentId, courseId, justification)
+        activate DB
+        DB --> EnrollSvc: OK
+        deactivate DB
+        EnrollSvc --> API: Override logged
+        deactivate EnrollSvc
+        API --> UI: 201 Override recorded
+        deactivate API
+    else Administrator Cancels Enrollment
+        UI --> Administrator: Enrollment cancelled
+        deactivate UI
+    end
+end
+
+' Seat Availability Phase
+== Seat Availability Check ==
+UI -> API: GET /courses/{courseId}/availability
+activate UI
+activate API
+API -> EnrollSvc: checkSeatAvailability(courseId)
+activate EnrollSvc
+EnrollSvc -> DB: SELECT availableSeats FROM courses WHERE courseId
+activate DB
+DB --> EnrollSvc: Available seat count
+deactivate DB
+alt No Seats Available
+    EnrollSvc --> API: 409 Course Full
+    deactivate EnrollSvc
+    API --> UI: Display "Course Full" message
+    deactivate API
+    alt Add to Waitlist
+        Administrator -> UI: Confirm add to waitlist
+        UI -> API: POST /courses/{courseId}/waitlist
+        activate API
+        API -> EnrollSvc: addToWaitlist(studentId, courseId)
+        activate EnrollSvc
+        EnrollSvc -> DB: INSERT INTO waitlist (studentId, courseId, queuePosition)
+        activate DB
+        DB --> EnrollSvc: waitlistId
+        deactivate DB
+        EnrollSvc --> API: 201 Added to waitlist
+        deactivate EnrollSvc
+        API --> UI: Student added to waitlist
+        deactivate API
+        API -> Notify: sendWaitlistNotification(studentId, courseId)
+        activate Notify
+        Notify --> Student: Waitlist confirmation notification
+        deactivate Notify
+        alt Seat Freed
+            EnrollSvc -> DB: Monitor waitlist — seat freed event
+            activate EnrollSvc
+            activate DB
+            DB --> EnrollSvc: Next waitlisted student
+            deactivate DB
+            EnrollSvc -> DB: INSERT INTO enrollments (studentId, courseId)
+            activate DB
+            DB --> EnrollSvc: enrollmentId
+            deactivate DB
+            EnrollSvc --> API: Auto-enrolled from waitlist
+            deactivate EnrollSvc
+        end
+    else Do Not Waitlist
+        UI --> Administrator: Enrollment cancelled
+        deactivate UI
+    end
+end
+
+' Enrollment Phase
+== Enrollment ==
+UI -> API: POST /enrollments
+activate UI
+activate API
+API -> EnrollSvc: enrollStudent(studentId, courseId, adminId)
+activate EnrollSvc
+EnrollSvc -> DB: INSERT INTO enrollments (studentId, courseId, enrolledAt, enrolledBy)
+activate DB
+DB --> EnrollSvc: enrollmentId
+deactivate DB
+EnrollSvc -> DB: UPDATE courses SET availableSeats = availableSeats - 1 WHERE courseId
+activate DB
+DB --> EnrollSvc: OK
+deactivate DB
+EnrollSvc --> API: 201 Enrollment created
+deactivate EnrollSvc
+API -> SIS: POST /sync/enrollment (studentId, courseId, enrollmentId)
+activate SIS
+SIS --> API: 200 Sync Confirmed
+deactivate SIS
+API --> UI: Enrollment Completed
+deactivate API
+deactivate UI
+
+' Notification & Audit Phase
+== Notification & Audit ==
+API -> Notify: sendEnrollmentConfirmation(studentId, courseId)
+activate Notify
+Notify --> Student: Enrollment confirmation email
+deactivate Notify
+API -> EnrollSvc: updateCourseRoster(courseId, studentId)
+activate EnrollSvc
+EnrollSvc -> DB: UPDATE course_roster SET students WHERE courseId
+activate DB
+DB --> EnrollSvc: OK
+deactivate DB
+EnrollSvc --> API: Roster updated
+deactivate EnrollSvc
+API -> EnrollSvc: logAuditTrail(adminId, action="ENROLL", studentId, courseId)
+activate EnrollSvc
+EnrollSvc -> DB: INSERT INTO audit_log (adminId, action, studentId, courseId, timestamp)
+activate DB
+DB --> EnrollSvc: OK
+deactivate DB
+EnrollSvc --> API: Audit logged
+deactivate EnrollSvc
+
+Student -> UI: Access course dashboard & materials
+activate UI
+UI -> API: GET /courses/{courseId}/dashboard
+activate API
+API -> DB: Fetch course materials and info
+activate DB
+DB --> API: Course dashboard data
+deactivate DB
+API --> UI: Display course dashboard
+deactivate API
+Instructor -> UI: View updated course roster
+UI -> API: GET /courses/{courseId}/roster
+activate API
+API -> DB: Fetch updated course roster
+activate DB
+DB --> API: Updated roster
+deactivate DB
+API --> UI: Display updated course roster
+deactivate API
+deactivate UI
+
+@enduml
