@@ -1,0 +1,43 @@
+@startuml InstructorUseCase
+title Composite Use Case Diagram: Instructor\nLearning Management System
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor White
+  BorderColor #1f77b4
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Instructor" as I
+
+usecase "Manage Lecture Materials"       as UC1
+usecase "Create Assessment"              as UC2
+usecase "Schedule Assessment Visibility" as UC3
+usecase "Grade Submissions"              as UC4
+usecase "Provide Assignment Feedback"    as UC5
+usecase "Manage Course Grades"           as UC6
+usecase "View Course Roster"             as UC7
+usecase "Monitor Student Activity"       as UC8
+usecase "Track Student Progress"         as UC9
+usecase "Post Announcements"             as UC10
+
+I -- UC1
+I -- UC2
+I -- UC3
+I -- UC4
+I -- UC5
+I -- UC6
+I -- UC7
+I -- UC8
+I -- UC9
+I -- UC10
+
+@enduml

@@ -1,0 +1,99 @@
+@startuml act_submit_assignment
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+skinparam activity {
+  BackgroundColor #E8F0FE
+  BorderColor #1A56DB
+  FontColor #1E293B
+  DiamondBackgroundColor #FEF9C3
+  DiamondBorderColor #CA8A04
+  DiamondFontColor #1E293B
+}
+
+skinparam swimlane {
+  BorderColor #1A56DB
+  BorderThickness 2
+  TitleFontSize 13
+  TitleFontStyle bold
+}
+
+skinparam arrow {
+  Color #334155
+  FontColor #334155
+  FontSize 11
+}
+
+skinparam note {
+  BackgroundColor #F0FDF4
+  BorderColor #16A34A
+}
+
+title <b>Activity Diagram – Submit Assignment</b>\nGroup 07 · Learning Management System
+
+|Student|
+start
+:Log In to LMS;
+:Navigate to\nCourse Dashboard;
+:Select Assignment\nfrom Assignment List;
+:Review Assignment\nDetails & Requirements;
+:Prepare Submission\n(document / file / link);
+
+|System|
+:Check Submission\nDeadline;
+
+if (Past Deadline?) then (yes)
+  if (Late Submissions\nAllowed?) then (yes)
+    :Flag Submission\nas Late;
+    note right: «extend»\nFlag Late Submission
+  else (no)
+    :Display "Submission\nClosed" Message;
+    |Student|
+    :Notified of\nClosed Submission;
+    stop
+  endif
+endif
+
+|Student|
+:Upload Submission File\n(PDF / ZIP / Link);
+
+|System|
+:Validate File\n(type, size, completeness);
+
+if (File Valid?) then (no)
+  :Display Validation\nError Message;
+  |Student|
+  :Fix & Re-upload File;
+  |System|
+  :Re-validate File;
+endif
+
+:Store Submission File\nin File Storage Service;
+
+if (Storage Successful?) then (no)
+  :Display Upload\nFailure Error;
+  |Student|
+  :Retry Upload;
+  stop
+endif
+
+:Record Submission\n(student ID, timestamp,\nassignment ID);
+:Update Submission\nStatus to "Submitted";
+
+fork
+  :Send Submission\nReceipt to Student\n<i>(Email & Notification Service)</i>;
+fork again
+  :Notify Instructor\nof New Submission;
+end fork
+
+|Student|
+:Receive Confirmation\nEmail;
+:View Submission\nStatus on Dashboard;
+
+|Instructor|
+:Receive Notification;
+:Submission Queued\nfor Grading;
+
+stop
+@enduml

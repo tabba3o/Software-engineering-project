@@ -1,0 +1,114 @@
+@startuml act_grade_submissions
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+skinparam activity {
+  BackgroundColor #E8F0FE
+  BorderColor #1A56DB
+  FontColor #1E293B
+  DiamondBackgroundColor #FEF9C3
+  DiamondBorderColor #CA8A04
+  DiamondFontColor #1E293B
+}
+
+skinparam swimlane {
+  BorderColor #1A56DB
+  BorderThickness 2
+  TitleFontSize 13
+  TitleFontStyle bold
+}
+
+skinparam arrow {
+  Color #334155
+  FontColor #334155
+  FontSize 11
+}
+
+skinparam note {
+  BackgroundColor #F0FDF4
+  BorderColor #16A34A
+}
+
+title <b>Activity Diagram – Grade Submissions</b>\nGroup 07 · Learning Management System
+
+|Instructor|
+start
+:Log In to LMS;
+:Navigate to\nGrading Panel;
+:Select Assignment\nto Grade;
+
+|System|
+:Load Submission List\n(all enrolled students);
+:Display Ungraded\nSubmissions;
+
+|Instructor|
+repeat
+
+  :Open Student\nSubmission;
+  :Review Submission\nContent;
+
+  if (Submission\nPresent?) then (no)
+    :Mark as\n"Missing";
+    :Assign Zero Grade\n(or policy default);
+  else (yes)
+    :Enter Numeric Grade\n(0 – max grade);
+    :Write Feedback\nComments;
+
+    if (Attach Reference\nor Rubric?) then (yes)
+      :Attach Grading\nRubric / Reference File;
+    endif
+
+    |System|
+    :Validate Grade\n(within allowed range);
+
+    if (Grade Valid?) then (no)
+      :Show Range\nError Message;
+      |Instructor|
+      :Correct Grade;
+      |System|
+      :Re-validate;
+    endif
+  endif
+
+  |System|
+  :Save Grade & Feedback\nto Database;
+  :Send Feedback\nNotification to Student\n<i>(Email & Notification Service)</i>;
+
+  |Instructor|
+
+repeat while (More Ungraded\nSubmissions?) is (yes)
+->no;
+
+|System|
+:Compute Assignment Statistics\n(average, min, max, pass rate);
+:Update Course\nGrade Report;
+
+|Student|
+:Receive Feedback\nNotification;
+:Log In to LMS;
+:View Grade\n& Feedback;
+
+if (Grade Dispute?) then (yes)
+  :Submit Regrade\nRequest with Reason;
+
+  |Instructor|
+  :Review Regrade\nRequest;
+
+  if (Regrade\nApproved?) then (yes)
+    :Update Grade\n& Add Comment;
+
+    |System|
+    :Save Updated\nGrade to Database;
+    :Notify Student\nof Grade Update;
+
+    |Student|
+    :View Updated\nGrade;
+  else (no)
+    |System|
+    :Notify Student:\nRegrade Denied;
+  endif
+endif
+
+stop
+@enduml

@@ -1,0 +1,37 @@
+@startuml AdministratorUseCase
+title Composite Use Case Diagram: Administrator\nLearning Management System
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor White
+  BorderColor #1f77b4
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Administrator" as A
+
+usecase "Manage User Accounts"          as UC1
+usecase "Enroll Students in Courses"    as UC2
+usecase "Assign Instructors to Courses" as UC3
+usecase "Manage Course Offerings"       as UC4
+usecase "Configure System Settings"     as UC5
+usecase "Generate Platform Reports"     as UC6
+usecase "Monitor Platform Activity"     as UC7
+
+A -- UC1
+A -- UC2
+A -- UC3
+A -- UC4
+A -- UC5
+A -- UC6
+A -- UC7
+
+@enduml
