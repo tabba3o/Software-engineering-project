@@ -1,0 +1,83 @@
+@startuml
+
+actor Instructor
+actor Student
+participant Frontend
+participant Backend
+participant "File Storage\nService" as FileStorage
+participant "Email & Notification\nService" as Notification
+
+' Login & Navigation Flow
+Instructor -> Frontend: Log In to LMS
+activate Frontend
+Frontend -> Backend: Authenticate User
+activate Backend
+Backend --> Frontend: Login Successful
+deactivate Backend
+Instructor -> Frontend: Navigate to Grading Panel
+Frontend -> Backend: Request Assignment List
+activate Backend
+Backend --> Frontend: Display Assignments
+deactivate Backend
+Instructor -> Frontend: Select Assignment to Grade
+Frontend -> Backend: Load Submission List
+activate Backend
+Backend --> Frontend: Display Ungraded Submissions
+deactivate Backend
+deactivate Frontend
+
+' Grading Flow
+Instructor -> Frontend: Open Student Submission
+activate Frontend
+Frontend -> Backend: Request Submission Content
+activate Backend
+Backend -> FileStorage: Retrieve Submission File
+activate FileStorage
+FileStorage --> Backend: Submission File Content
+deactivate FileStorage
+Backend --> Frontend: Display Submission
+deactivate Backend
+Instructor -> Frontend: Enter Grade, Write Feedback & Attach Rubric
+Frontend -> Backend: Submit Grade & Feedback
+activate Backend
+Backend --> Frontend: Grade Validated & Saved
+deactivate Backend
+deactivate Frontend
+
+' Statistics Flow
+Backend -> Backend: Compute Assignment Statistics & Update Grade Report
+
+' Student Notification Flow
+Backend -> Notification: Send Feedback Notification to Student
+activate Notification
+Notification --> Student: Receive Feedback Notification
+deactivate Notification
+Student -> Frontend: Log In & View Grade & Feedback
+activate Frontend
+Frontend -> Backend: Request Grade & Feedback
+activate Backend
+Backend --> Frontend: Display Grade & Feedback
+deactivate Backend
+deactivate Frontend
+
+' Grade Dispute Flow
+Student -> Frontend: Submit Regrade Request with Reason
+activate Frontend
+Frontend -> Backend: Submit Regrade Request
+activate Backend
+Backend --> Instructor: Regrade Request Forwarded
+deactivate Backend
+deactivate Frontend
+Instructor -> Frontend: Review & Respond to Regrade Request
+activate Frontend
+Frontend -> Backend: Submit Regrade Decision
+activate Backend
+Backend --> Frontend: Grade Updated or Denied
+deactivate Backend
+deactivate Frontend
+Backend -> Notification: Notify Student of Regrade Decision
+activate Notification
+Notification --> Student: Receive Regrade Decision
+deactivate Notification
+
+@enduml

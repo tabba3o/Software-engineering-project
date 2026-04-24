@@ -1,0 +1,253 @@
+@startuml
+
+actor Instructor
+actor Student
+participant "Web UI" as UI
+participant "API Gateway" as API
+participant "Grading Service" as GradingSvc
+participant "File Storage Service" as Storage
+database "Relational Database" as DB
+participant "Email & Notification\nService" as Notify
+
+' Login & Navigation Phase
+== Login & Navigation ==
+Instructor -> UI: Enter Credentials
+activate UI
+UI -> API: POST /auth/login
+activate API
+API -> DB: Verify user credentials
+activate DB
+DB --> API: User record + role
+deactivate DB
+API --> UI: 200 OK + Auth Token
+deactivate API
+Instructor -> UI: Navigate to Grading Panel
+UI -> API: GET /courses/{courseId}/assignments
+activate API
+API -> GradingSvc: getAssignments(courseId, instructorId)
+activate GradingSvc
+GradingSvc -> DB: Query assignments by course and instructor
+activate DB
+DB --> GradingSvc: Assignment records
+deactivate DB
+GradingSvc --> API: Assignment list
+deactivate GradingSvc
+API --> UI: Display assignments
+deactivate API
+Instructor -> UI: Select assignment to grade
+UI -> API: GET /assignments/{assignmentId}/submissions
+activate API
+API -> GradingSvc: getSubmissions(assignmentId)
+activate GradingSvc
+GradingSvc -> DB: Query all submissions for assignment
+activate DB
+DB --> GradingSvc: Submission records (graded & ungraded)
+deactivate DB
+GradingSvc --> API: Ungraded submission list
+deactivate GradingSvc
+API --> UI: Display ungraded submissions
+deactivate API
+deactivate UI
+
+' Grading Phase
+== Grading ==
+loop For Each Ungraded Submission
+    Instructor -> UI: Open student submission
+    activate UI
+    UI -> API: GET /submissions/{submissionId}
+    activate API
+    API -> GradingSvc: getSubmissionContent(submissionId)
+    activate GradingSvc
+    GradingSvc -> DB: Query submission record
+    activate DB
+    DB --> GradingSvc: submissionId, fileUrl, studentId, lateFlag
+    deactivate DB
+    GradingSvc -> Storage: fetchFile(fileUrl)
+    activate Storage
+    Storage --> GradingSvc: Submission file content
+    deactivate Storage
+    GradingSvc --> API: Submission details + file
+    deactivate GradingSvc
+    API --> UI: Display submission content
+    deactivate API
+
+    alt Submission Missing
+        Instructor -> UI: Mark as "Missing" & assign zero grade
+        UI -> API: PATCH /submissions/{submissionId}/grade
+        activate API
+        API -> GradingSvc: saveGrade(submissionId, grade=0, status="Missing")
+        activate GradingSvc
+        GradingSvc -> DB: UPDATE submissions SET grade=0, status="Missing"
+        activate DB
+        DB --> GradingSvc: OK
+        deactivate DB
+        GradingSvc --> API: Saved
+        deactivate GradingSvc
+        API --> UI: 200 OK
+        deactivate API
+    else Submission Present
+        Instructor -> UI: Enter numeric grade & write feedback comments
+        alt Attach Rubric or Reference File
+            Instructor -> UI: Attach grading rubric / reference file
+            UI -> API: POST /submissions/{submissionId}/attachments (multipart)
+            activate API
+            API -> Storage: uploadFile(rubricData, submissionId)
+            activate Storage
+            Storage --> API: 200 OK + rubricUrl
+            deactivate Storage
+            API --> UI: Attachment saved
+            deactivate API
+        end
+        UI -> API: PATCH /submissions/{submissionId}/grade
+        activate API
+        API -> GradingSvc: validateGrade(grade, assignmentId)
+        activate GradingSvc
+        GradingSvc -> DB: Fetch max grade for assignment
+        activate DB
+        DB --> GradingSvc: maxGrade value
+        deactivate DB
+        alt Grade out of allowed range
+            GradingSvc --> API: 422 Grade Out of Range
+            deactivate GradingSvc
+            API --> UI: Show range error message
+            deactivate API
+            Instructor -> UI: Correct grade value
+            UI -> API: PATCH /submissions/{submissionId}/grade (corrected)
+            activate API
+            API -> GradingSvc: validateGrade(correctedGrade, assignmentId)
+            activate GradingSvc
+        end
+        GradingSvc --> API: Grade valid
+        deactivate GradingSvc
+        API -> GradingSvc: saveGrade(submissionId, grade, feedback, rubricUrl)
+        activate GradingSvc
+        GradingSvc -> DB: UPDATE submissions SET grade, feedback, status="Graded"
+        activate DB
+        DB --> GradingSvc: OK
+        deactivate DB
+        GradingSvc --> API: 200 Grade saved
+        deactivate GradingSvc
+        API --> UI: 200 OK
+        deactivate API
+    end
+
+    API -> Notify: sendFeedbackNotification(studentId, submissionId, grade)
+    activate Notify
+    Notify --> Student: Feedback notification email
+    deactivate Notify
+    deactivate UI
+end
+
+' Statistics & Report Phase
+== Statistics & Report ==
+API -> GradingSvc: computeStatistics(assignmentId)
+activate API
+activate GradingSvc
+GradingSvc -> DB: Aggregate grades (avg, min, max, pass rate)
+activate DB
+DB --> GradingSvc: Statistics data
+deactivate DB
+GradingSvc -> DB: UPDATE course_grade_report SET statistics WHERE assignmentId
+activate DB
+DB --> GradingSvc: OK
+deactivate DB
+GradingSvc --> API: Statistics computed & report updated
+deactivate GradingSvc
+deactivate API
+
+' Student Views Grade Phase
+== Student Views Grade ==
+Student -> UI: Log In & Navigate to Assignment Grades
+activate UI
+UI -> API: POST /auth/login
+activate API
+API -> DB: Verify user credentials
+activate DB
+DB --> API: User record + role
+deactivate DB
+API --> UI: 200 OK + Auth Token
+deactivate API
+UI -> API: GET /submissions/{submissionId}/grade
+activate API
+API -> GradingSvc: getGradeAndFeedback(submissionId, studentId)
+activate GradingSvc
+GradingSvc -> DB: Query grade, feedback, status for student
+activate DB
+DB --> GradingSvc: Grade + feedback record
+deactivate DB
+GradingSvc --> API: Grade + feedback
+deactivate GradingSvc
+API --> UI: Display grade & feedback
+deactivate API
+
+' Grade Dispute Phase
+== Grade Dispute ==
+alt Student Raises Grade Dispute
+    Student -> UI: Submit regrade request with reason
+    UI -> API: POST /submissions/{submissionId}/regrade-request
+    activate API
+    API -> GradingSvc: createRegradeRequest(submissionId, studentId, reason)
+    activate GradingSvc
+    GradingSvc -> DB: INSERT INTO regrade_requests (submissionId, studentId, reason)
+    activate DB
+    DB --> GradingSvc: requestId
+    deactivate DB
+    GradingSvc --> API: 201 Request Created
+    deactivate GradingSvc
+    API --> UI: Request submitted
+    deactivate API
+
+    Instructor -> UI: Review regrade request
+    UI -> API: GET /regrade-requests/{requestId}
+    activate API
+    API -> GradingSvc: getRegradeRequest(requestId)
+    activate GradingSvc
+    GradingSvc -> DB: Query regrade request details
+    activate DB
+    DB --> GradingSvc: Request details
+    deactivate DB
+    GradingSvc --> API: Request details
+    deactivate GradingSvc
+    API --> UI: Display regrade request
+    deactivate API
+
+    alt Regrade Approved
+        Instructor -> UI: Update grade & add comment
+        UI -> API: PATCH /submissions/{submissionId}/grade (updated)
+        activate API
+        API -> GradingSvc: updateGrade(submissionId, newGrade, comment)
+        activate GradingSvc
+        GradingSvc -> DB: UPDATE submissions SET grade, feedback WHERE submissionId
+        activate DB
+        DB --> GradingSvc: OK
+        deactivate DB
+        GradingSvc -> DB: UPDATE regrade_requests SET status="Approved"
+        activate DB
+        DB --> GradingSvc: OK
+        deactivate DB
+        GradingSvc --> API: 200 Grade updated
+        deactivate GradingSvc
+        API --> UI: Grade updated
+        deactivate API
+        API -> Notify: notifyStudent(studentId, "Regrade Approved", newGrade)
+        activate Notify
+        Notify --> Student: View updated grade notification
+        deactivate Notify
+    else Regrade Denied
+        API -> GradingSvc: updateRegradeStatus(requestId, "Denied")
+        activate GradingSvc
+        GradingSvc -> DB: UPDATE regrade_requests SET status="Denied"
+        activate DB
+        DB --> GradingSvc: OK
+        deactivate DB
+        GradingSvc --> API: OK
+        deactivate GradingSvc
+        API -> Notify: notifyStudent(studentId, "Regrade Denied")
+        activate Notify
+        Notify --> Student: Regrade denied notification
+        deactivate Notify
+    end
+end
+deactivate UI
+
+@enduml

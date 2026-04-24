@@ -1,0 +1,48 @@
+@startuml InstructorCreateAssessment
+title Use Case: Create Assessment — Learning Management System
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor #E8E8E8
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+skinparam rectangle {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Instructor"            as Instructor
+actor "Student"               as Student
+actor "File Storage\nService" as FS
+
+rectangle "Learning Management System" {
+  usecase "Schedule Assessment\nVisibility"    as UC_SCHED
+  usecase "Attach Reference\nFile"             as UC_ATTACH
+  usecase "Create Assessment"                  as UC_CREATE
+  usecase "Log In"                             as UC_LOGIN
+  usecase "Select Course"                      as UC_SELECT
+  usecase "Configure\nSubmission Settings"     as UC_CONFIG
+  usecase "Notify Students\nof New Assessment" as UC_NOTIFY
+}
+
+Instructor --> UC_CREATE
+
+UC_SCHED  ..> UC_CREATE : <<extend>>
+UC_ATTACH ..> UC_CREATE : <<extend>>
+
+UC_CREATE ..> UC_LOGIN  : <<include>>
+UC_CREATE ..> UC_SELECT : <<include>>
+UC_CREATE ..> UC_CONFIG : <<include>>
+UC_CREATE ..> UC_NOTIFY : <<include>>
+
+UC_ATTACH --> FS
+UC_NOTIFY --> Student
+
+@enduml

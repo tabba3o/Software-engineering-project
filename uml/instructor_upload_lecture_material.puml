@@ -1,0 +1,46 @@
+@startuml InstructorUploadLectureMaterial
+title Use Case: Upload Lecture Material — Learning Management System
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor #E8E8E8
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+skinparam rectangle {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Instructor"            as Instructor
+actor "Student"               as Student
+actor "File Storage\nService" as FS
+
+rectangle "Learning Management System" {
+  usecase "Set Material\nVisibility"           as UC_VIS
+  usecase "Upload Lecture\nMaterial"           as UC_UPLOAD
+  usecase "Log In"                             as UC_LOGIN
+  usecase "Select Course"                      as UC_SELECT
+  usecase "Store Material\nFile"               as UC_STORE
+  usecase "Notify Students\nof New Material"   as UC_NOTIFY
+}
+
+Instructor --> UC_UPLOAD
+
+UC_VIS ..> UC_UPLOAD : <<extend>>
+
+UC_UPLOAD ..> UC_LOGIN  : <<include>>
+UC_UPLOAD ..> UC_SELECT : <<include>>
+UC_UPLOAD ..> UC_STORE  : <<include>>
+UC_UPLOAD ..> UC_NOTIFY : <<include>>
+
+UC_STORE  --> FS
+UC_NOTIFY --> Student
+
+@enduml

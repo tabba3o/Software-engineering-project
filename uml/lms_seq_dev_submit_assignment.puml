@@ -1,0 +1,137 @@
+@startuml
+
+actor Student
+actor Instructor
+participant "Web UI" as UI
+participant "API Gateway" as API
+participant "Assignment Service" as AssignmentSvc
+participant "File Storage Service" as Storage
+database "Relational Database" as DB
+participant "Email & Notification\nService" as Notify
+
+' Login & Navigation Phase
+== Login & Navigation ==
+Student -> UI: Enter Credentials
+activate UI
+UI -> API: POST /auth/login
+activate API
+API -> DB: Verify user credentials
+activate DB
+DB --> API: User record + role
+deactivate DB
+API --> UI: 200 OK + Auth Token
+deactivate API
+Student -> UI: Navigate to Course Dashboard
+UI -> API: GET /courses/{courseId}/assignments
+activate API
+API -> AssignmentSvc: getAssignments(courseId, studentId)
+activate AssignmentSvc
+AssignmentSvc -> DB: Query assignments by course
+activate DB
+DB --> AssignmentSvc: Assignment records
+deactivate DB
+AssignmentSvc --> API: Assignment list
+deactivate AssignmentSvc
+API --> UI: Display assignments
+deactivate API
+Student -> UI: Select assignment & review details and requirements
+deactivate UI
+
+' Deadline Check Phase
+== Deadline Check ==
+UI -> API: GET /assignments/{assignmentId}/deadline
+activate UI
+activate API
+API -> AssignmentSvc: checkDeadline(assignmentId, currentTime)
+activate AssignmentSvc
+AssignmentSvc -> DB: Query deadline & late submission policy
+activate DB
+DB --> AssignmentSvc: Deadline timestamp + lateAllowed flag
+deactivate DB
+alt Past deadline & late submissions allowed
+    AssignmentSvc --> API: lateFlag = true
+    deactivate AssignmentSvc
+    API --> UI: 200 OK — Warn: submission will be flagged as late
+    deactivate API
+    deactivate UI
+else Past deadline & late submissions not allowed
+    AssignmentSvc --> API: closed = true
+    deactivate AssignmentSvc
+    API --> UI: 403 Submission Closed
+    deactivate API
+    UI --> Student: Display "Submission Closed" message
+    deactivate UI
+end
+
+' File Upload & Validation Phase
+== File Upload & Validation ==
+Student -> UI: Attach file (PDF / ZIP / Link)
+activate UI
+UI -> API: POST /assignments/{assignmentId}/submit (multipart/form-data)
+activate API
+API -> AssignmentSvc: validateFile(fileType, fileSize, assignmentId)
+activate AssignmentSvc
+AssignmentSvc -> DB: Fetch allowed file types & size limits
+activate DB
+DB --> AssignmentSvc: Validation rules
+deactivate DB
+alt File invalid (type or size)
+    AssignmentSvc --> API: 422 Unprocessable Entity — validation error
+    deactivate AssignmentSvc
+    API --> UI: Display validation error message
+    deactivate API
+    UI --> Student: Fix & re-upload file
+    Student -> UI: Re-attach corrected file
+    UI -> API: POST /assignments/{assignmentId}/submit (multipart/form-data)
+    activate API
+    API -> AssignmentSvc: validateFile(fileType, fileSize, assignmentId)
+    activate AssignmentSvc
+    AssignmentSvc --> API: 200 OK — file valid
+    deactivate AssignmentSvc
+end
+
+' Storage Phase
+== File Storage ==
+API -> Storage: uploadFile(fileData, studentId, assignmentId)
+activate Storage
+alt Storage failure
+    Storage --> API: 500 Upload Failed
+    deactivate Storage
+    API --> UI: Display upload failure error
+    deactivate API
+    UI --> Student: Prompted to retry
+    deactivate UI
+else Storage successful
+    Storage --> API: 200 OK + fileUrl
+    deactivate Storage
+end
+
+' Record & Confirm Phase
+== Record & Confirm ==
+API -> AssignmentSvc: recordSubmission(studentId, assignmentId, fileUrl, timestamp, lateFlag)
+activate AssignmentSvc
+AssignmentSvc -> DB: INSERT INTO submissions (studentId, assignmentId, fileUrl, submittedAt, lateFlag)
+activate DB
+DB --> AssignmentSvc: submissionId
+deactivate DB
+AssignmentSvc -> DB: UPDATE submissions SET status = "Submitted" WHERE submissionId = {id}
+activate DB
+DB --> AssignmentSvc: OK
+deactivate DB
+AssignmentSvc --> API: 201 Created — submissionId confirmed
+deactivate AssignmentSvc
+API --> UI: 201 Submission Confirmed
+deactivate API
+UI --> Student: View submission status on dashboard
+deactivate UI
+
+' Notification Phase
+== Notification ==
+API -> Notify: sendReceipt(studentId, submissionId, timestamp)
+activate Notify
+API -> Notify: notifyInstructor(instructorId, courseId, submissionId)
+Notify --> Student: Confirmation email (receipt + submission details)
+Notify --> Instructor: New submission notification — queued for grading
+deactivate Notify
+
+@enduml

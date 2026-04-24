@@ -1,0 +1,44 @@
+@startuml InstructorGradeSubmission
+title Use Case: Grade Submission — Learning Management System
+
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam usecase {
+  BackgroundColor #E8E8E8
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+skinparam rectangle {
+  BorderColor Black
+  FontColor Black
+}
+
+actor "Instructor"                     as Instructor
+actor "Student"                        as Student
+actor "Email &\nNotification\nService" as NS
+
+rectangle "Learning Management System" {
+  usecase "Add Inline\nComment"        as UC_COMMENT
+  usecase "Grade Submission"           as UC_GRADE
+  usecase "Log In"                     as UC_LOGIN
+  usecase "View Submission"            as UC_VIEW
+  usecase "Send Feedback\nNotification" as UC_NOTIFY
+}
+
+Instructor --> UC_GRADE
+Student    --> UC_VIEW
+
+UC_COMMENT ..> UC_GRADE : <<extend>>
+
+UC_GRADE ..> UC_LOGIN  : <<include>>
+UC_GRADE ..> UC_VIEW   : <<include>>
+UC_GRADE ..> UC_NOTIFY : <<include>>
+
+UC_NOTIFY --> NS
+
+@enduml
