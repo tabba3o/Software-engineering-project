@@ -1,0 +1,157 @@
+@startuml lms_class_diagram
+title Class Diagram - Learning Management System\nGroup 07 · CS13477
+
+' ══════════════════════════════════════════════════════════════════
+' Relationship reasoning:
+'
+'   Generalization  <|--   (is-a)
+'     User → Student / Instructor / Administrator
+'       All three share login/profile behaviour and specialise the
+'       domain operations they expose.
+'
+'   Composition  *--   (whole owns part exclusively, cascade delete)
+'     Course *-- Enrollment
+'       An enrollment binds one student to one specific course; it
+'       cannot be shared or moved and is removed with the course.
+'     Course *-- Assessment
+'       Assessments are authored for one specific course (questions,
+'       due dates, instructions are course-bound) and have no
+'       meaning outside it.
+'     Assessment *-- Submission
+'       A submission targets exactly one assessment and is removed
+'       with it.
+'     Submission *-- Grade
+'       A grade is meaningful only for the submission it evaluates.
+'
+'   Aggregation  o--   (whole contains shared / independent part)
+'     Course o-- Material
+'       Lecture materials (slide decks, readings, videos) are
+'       reusable artefacts — the same file can be attached to a
+'       course in Spring 2026 and again in Spring 2027 — so the
+'       material is contained in, not owned by, the course.
+'
+'   Association  -->   (structural link, no whole-part semantics)
+'     Student       "1" --> "*" Enrollment     (registered via)
+'     Student       "1" --> "*" Submission     (submits)
+'     Instructor    "1" --> "*" Course         (teaches)
+'     Instructor    "1" --> "*" Material       (uploads)
+'     Instructor    "1" --> "*" Assessment     (authors)
+'     Instructor    "1" --> "*" Grade          (assigns)
+'     Administrator "1" --> "*" Enrollment     (creates)
+'     Administrator "1" --> "*" Course         (manages)
+' ══════════════════════════════════════════════════════════════════
+
+' Define classes with attributes and operations
+abstract class User {
+  +userId : String
+  +fullName : String
+  #email : String
+  -passwordHash : String
+  +createdAt : Date
+  /isActive : Boolean
+  +login(credentials : Credentials) : Session
+  +logout() : void
+  +updateProfile(data : ProfileData) : void
+}
+
+class Student {
+  +studentNumber : String
+  +program : String
+  +academicYear : Integer
+  +submitAssignment(a : Assessment, f : File) : Submission
+  +viewPerformanceReport() : Report
+}
+
+class Instructor {
+  +employeeId : String
+  +department : String
+  +uploadMaterial(c : Course, m : Material) : void
+  +createAssessment(c : Course, data : AssessmentData) : Assessment
+  +gradeSubmission(s : Submission, g : Grade) : void
+}
+
+class Administrator {
+  +employeeId : String
+  +office : String
+  +enrollStudent(s : Student, c : Course) : Enrollment
+  +assignInstructor(i : Instructor, c : Course) : void
+  +manageUserAccount(u : User) : void
+  +generatePlatformReport(t : Type) : Report
+}
+
+class Course {
+  +courseCode : String
+  +title : String
+  +academicTerm : String
+  -capacity : Integer
+  +addMaterial(m : Material) : void
+  +addAssessment(a : Assessment) : void
+  +getRoster() : List<Enrollment>
+}
+
+class Enrollment {
+  +enrollmentId : String
+  +enrolledAt : Date
+  -status : String
+  +source : String
+  +drop() : void
+}
+
+class Material {
+  +materialId : String
+  +title : String
+  +fileUrl : String
+  +uploadedAt : Date
+  +download() : File
+}
+
+class Assessment {
+  +assessmentId : String
+  +title : String
+  +maxScore : Float
+  +dueDate : Date
+  +lateAllowed : Boolean
+  +open() : void
+  +close() : void
+}
+
+class Submission {
+  +submissionId : String
+  +submittedAt : Date
+  +fileUrl : String
+  -status : String
+  +isLate : Boolean
+  +uploadFile(f : File) : void
+  +withdraw() : void
+}
+
+class Grade {
+  +gradeId : String
+  +score : Float
+  +feedback : String
+  +gradedAt : Date
+  +release() : void
+}
+
+' Relationships
+User <|-- Student                         : Inheritance (Generalization)
+User <|-- Instructor                      : Inheritance (Generalization)
+User <|-- Administrator                   : Inheritance (Generalization)
+
+Course      "1" *-- "*" Enrollment        : Composition (owns)
+Course      "1" *-- "*" Assessment        : Composition (owns)
+Assessment  "1" *-- "*" Submission        : Composition (owns)
+Submission  "1" *-- "1" Grade             : Composition (owns)
+
+Course      "1" o-- "*" Material          : Aggregation (contains)
+
+Student        "1" --> "*" Enrollment     : Association (registered via)
+Student        "1" --> "*" Submission     : Association (submits)
+Instructor     "1" --> "*" Course         : Association (teaches)
+Instructor     "1" --> "*" Material       : Association (uploads)
+Instructor     "1" --> "*" Assessment     : Association (authors)
+Instructor     "1" --> "*" Grade          : Association (assigns)
+Administrator  "1" --> "*" Enrollment     : Association (creates)
+Administrator  "1" --> "*" Course         : Association (manages)
+
+@enduml
