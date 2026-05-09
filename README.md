@@ -38,32 +38,35 @@ All diagram sources are stored as `.puml` files under `/uml/` and exported to `.
 
 ### Part I — Context
 
-- **C4 Level 1 — System Context Diagram** (`lms_c4_l1.puml`): shows the LMS as a single black box and its three human actors (Student, Instructor, Administrator) together with the three external systems it integrates with (Authentication System, University SIS, Email & Notification Service).
-- **C4 Level 2 — Container Diagram** (`c4_l2_container_lms.puml`): decomposes the LMS into its internal containers — Web Application (React SPA), Backend API Server (Python/Django), Relational Database (PostgreSQL), and File Storage Service (Object Storage) — and their protocols.
-- **Activity Diagrams with Swimlanes** — one per key scenario:
-  - `act_submit_assignment.puml` — Student submission flow including deadline and validation branches.
-  - `act_grade_submissions.puml` — Instructor grading loop with regrade-request sub-flow.
-  - `act_enroll_students.puml` — Administrator enrollment with prerequisite check, seat availability, and waitlisting.
+- **C4 Level 1 — System Context Diagram** (`lms_c4_l1.puml`): the LMS as a single black box with its three human actors (Student, Instructor, Administrator) and three external systems (Authentication System, University SIS, Email & Notification Service).
+- **C4 Level 2 — Container Diagram** (`c4_l2_container_lms.puml`): decomposes the LMS into Web Application (React SPA), Backend API Server (Python/Django), Relational Database (PostgreSQL), and File Storage Service (Object Storage).
+- **Context Activity Diagram with swimlanes** (`lms_act_context_enrollment.puml`): cross-system student enrollment process, with each swimlane being one of the four C4 L1 `«system»` participants (LMS, University SIS, Authentication System, Email & Notification Service).
 
 ### Part II — Interactions
 
-- **Composite Use Case Diagrams** (one per actor):
-  - `student_usecase.puml`
-  - `instructor_usecase.puml`
-  - `administrator_usecase.puml`
-- **Individual Use Case Diagrams** (with `<<include>>` / `<<extend>>`):
-  - Student: `student_submit_assignment.puml`, `student_access_course_materials.puml`, `student_view_performance_report.puml`
-  - Instructor: `instructor_upload_lecture_material.puml`, `instructor_grade_submission.puml`, `instructor_create_assessment.puml`
-  - Administrator: `admin_enroll_student.puml`, `admin_assign_instructor.puml`, `admin_generate_report.puml`
-- **Use Case Descriptions** (tabular): provided in the report for each individual use case.
-- **Sequence Diagrams — High-Level (stakeholder view):**
-  - `lms_seq_hl_submit_assignment.puml`
-  - `lms_seq_hl_grade_submissions.puml`
-  - `lms_seq_hl_enroll_students.puml`
-- **Sequence Diagrams — Detailed (developer view):**
-  - `lms_seq_dev_submit_assignment.puml`
-  - `lms_seq_dev_grade_submissions.puml`
-  - `lms_seq_dev_enroll_students.puml`
+- **Composite Use Case Diagrams** — one per actor: `student_usecase.puml`, `instructor_usecase.puml`, `administrator_usecase.puml`.
+- **Individual Use Case Diagrams** with `<<include>>` / `<<extend>>` relationships:
+  - Student: `student_submit_assignment.puml`, `student_access_course_materials.puml`, `student_view_performance_report.puml`.
+  - Instructor: `instructor_upload_lecture_material.puml`, `instructor_grade_submission.puml`, `instructor_create_assessment.puml`.
+  - Administrator: `admin_enroll_student.puml`, `admin_assign_instructor.puml`, `admin_generate_report.puml`.
+- **Use Case Descriptions** — tabular format, one per individual use case, embedded in the report.
+- **Sequence Diagrams — High-Level (stakeholder view):** `lms_seq_hl_submit_assignment.puml`, `lms_seq_hl_grade_submissions.puml`, `lms_seq_hl_enroll_students.puml`.
+- **Sequence Diagrams — Detailed (developer view):** `lms_seq_dev_submit_assignment.puml`, `lms_seq_dev_grade_submissions.puml`, `lms_seq_dev_enroll_students.puml`.
+
+### Part III — Structure
+
+- **Class Diagram** (`lms_class_diagram.puml`): ten domain classes with attributes, operations, and three relationship kinds — generalization (User → Student / Instructor / Administrator), composition (Course owns Enrollment / Assessment; Assessment owns Submission; Submission owns Grade), and aggregation (Course contains Material).
+
+### Part IV — Behavior
+
+The LMS is a hybrid system. Its dominant character is data-driven and a discrete event-driven slice exists in the submission lifecycle. Part IV combines both:
+
+- **Internal-scope Activity Diagrams with swimlanes** — the data-driven view at scenario scope:
+  - `act_submit_assignment.puml` — student submission scenario (UC-S1) with deadline and validation branches.
+  - `act_grade_submissions.puml` — instructor grading scenario (UC-I3) with regrade-request sub-flow.
+  - `act_enroll_students.puml` — administrator enrollment scenario (UC-A1) with prerequisite, capacity, and waitlist branches.
+- **State Diagram** (`submission_state.puml`) — the event-driven view: lifecycle of a Submission from `Draft → Submitted → Under Review → Graded → Released` with an optional `Regrade Requested` branch.
+- **State-Stimulus Table** — tabular companion to the state diagram listing every transition with current state, stimulus, guard, next state, and action.
 
 ---
 
@@ -71,16 +74,16 @@ All diagram sources are stored as `.puml` files under `/uml/` and exported to `.
 
 ```
 .
-├── README.md              # This file — title page of the report
+├── README.md                          # Title page of the report
 ├── docs/
-│   ├── se_report_group_07.md    # Full Markdown report (source)
-│   └── se_report_group_07.pdf   # Final PDF report (Pandoc output)
+│   ├── se_report_group_07.md          # Full Markdown report (source)
+│   └── se_report_group_07.pdf         # Final PDF report (Pandoc output)
 └── uml/
-    ├── *.puml             # PlantUML source for every diagram
-    └── *.png              # Rendered images embedded in the report
+    ├── *.puml                         # PlantUML source for every diagram
+    └── *.png                          # Rendered images embedded in the report
 ```
 
-- **`/README.md`** — the team’s title page; embedded as the first page of the report.
+- **`/README.md`** — the team's title page; embedded as the first page of the report.
 - **`/docs/`** — the report in Markdown source form and the final PDF deliverable.
 - **`/uml/`** — all PlantUML sources and their rendered PNG exports; the report references these PNGs via relative paths (`../uml/*.png`).
 
@@ -90,18 +93,20 @@ All diagram sources are stored as `.puml` files under `/uml/` and exported to `.
 
 ### Member Roles
 
+Work was distributed across the four parts of the project, with each member owning approximately one quarter of the deliverables and contributing to report editing.
+
 | Member | Role |
 | :--- | :--- |
-| *Mohammad Tabba'a* | *Activity diagrams & report editing* |
-| *Tala Hammouri* | *Use case diagrams & descriptions* |
-| *Lojain Hamdan* | *Sequence diagrams (HL & developer)* |
-| *Jude Mamoon* | *C4 L1(Context) & L2(Container) modelling* |
+| *Jude Mamoon* | Part I — C4 L1 (Context) & C4 L2 (Container) modelling; context-scope swimlane activity diagram; report editing. |
+| *Tala Hammouri* | Part II — Composite and individual use case diagrams; tabular use case descriptions; sequence diagrams; report editing. |
+| *Lojain Hamdan* | Part II — Sequence diagrams (HL & developer); class diagram; report editing. |
+| *Mohammad Tabba'a* | Part IV — Behaviour-scope activity diagrams, state diagram, and state-stimulus table; report editing. |
 
 ### Commits per Team Member
 
 | Member | Number of Commits |
 | :--- | :---: |
-| *Mohammad Tabba'a* | *6* |
-| *Tala Hammouri* | *6* |
-| *Lojain Hamdan* | *6* |
-| *Jude Mamoon* | *6* |
+| *Jude Mamoon* | *8* |
+| *Tala Hammouri* | *7* |
+| *Lojain Hamdan* | *8* |
+| *Mohammad Tabba'a* | *7* |
