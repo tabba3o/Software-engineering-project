@@ -107,7 +107,7 @@ Work was distributed across the four parts of the project, with each member owni
 
 | Member | Number of Commits |
 | :--- | :---: |
-| Jude Mamoon | 9 |
-| Tala Hammouri | 10 |
-| Lojain Hamdan | 10 |
+| Jude Mamoon | 10 |
+| Tala Hammouri | 11 |
+| Lojain Hamdan | 11 |
 | Mohammad Tabba'a | 10 |
