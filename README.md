@@ -6,6 +6,7 @@
 - **Case Study:** Group 07 — Learning Management System (LMS)
 - **Course:** Software Engineering — CS13477 — Spring 2026
 - **Instructor:** *Dr. Samer Elkababji*
+- **Repository:** https://github.com/tabba3o/Software-engineering-project
 
 | # | Name | Student ID |
 | :---: | :--- | :--- |
@@ -107,6 +108,6 @@ Work was distributed across the four parts of the project, with each member owni
 | Member | Number of Commits |
 | :--- | :---: |
 | *Jude Mamoon* | *8* |
-| *Tala Hammouri* | *7* |
+| *Tala Hammouri* | *9* |
 | *Lojain Hamdan* | *8* |
-| *Mohammad Tabba'a* | *7* |
+| *Mohammad Tabba'a* | *8* |
