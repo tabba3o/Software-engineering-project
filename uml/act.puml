@@ -1,0 +1,92 @@
+@startuml lms_act_context_swimlane
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam shadowing false
+
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #1A56DB
+  FontColor #1E293B
+  DiamondBackgroundColor #FFFFFF
+  DiamondBorderColor #1A56DB
+  DiamondFontColor #1E293B
+}
+
+skinparam swimlane {
+  BorderColor #1A56DB
+  BorderThickness 2
+  TitleFontSize 13
+  TitleFontStyle bold
+}
+
+skinparam arrow {
+  Color #1E293B
+  FontColor #1E293B
+  FontSize 11
+}
+
+' ══════════════════════════════════════════════════════════════════
+' Context Activity Diagram (Swimlane) — Student Enrollment Process
+' Learning Management System | Group 07 — CS13477
+'
+' Mirrors SD06a slide 16 in scope: ONE bounded cross-system business
+' process showing where the LMS plugs into the wider university
+' workflow alongside its three external collaborators.
+'
+' Each swimlane = one «system» from the C4 L1 (LMS, University SIS,
+' Authentication System, Email & Notification Service).
+'
+' Actions are business-process verbs at organisational granularity —
+' no UI clicks, no validation, no DB writes.
+'
+' Control flow uses decisions and merges; the post-confirmation
+' side-effects (update roster / notify student / sync to SIS) are
+' shown as sequential cross-lane flow rather than a fork bar,
+' because PlantUML's swimlane engine cannot reliably render fork
+' bars across multiple lanes. Each branch terminates at its own
+' stop node to avoid auto-merge artifacts.
+' ══════════════════════════════════════════════════════════════════
+
+title <b>Context Activity Diagram (Swimlane) – Student Enrollment Process</b>\nGroup 07 · Learning Management System
+
+|SIS| «system» University SIS
+start
+:Publish Approved\nStudent Records;
+
+|Auth| «system» Authentication System
+:Provision Student\nIdentity (SSO);
+
+|LMS| «system» Learning Management System
+:Initiate Enrollment\nfor Course Offering;
+
+if (Enrollment Source?) then ([SIS sync])
+  |SIS|
+  :Send Student Roster;
+  |LMS|
+  :Import Roster;
+else ([manual])
+  :Receive Manual\nEnrollment Request;
+endif
+
+if (Seat Available?) then ([yes])
+  :Confirm Enrollment;
+  :Update Course\nRoster;
+
+  |Email| «system» Email & Notification Service
+  :Notify Student of\nEnrollment Confirmation;
+
+  |SIS|
+  :Sync Enrollment\nRecord;
+  stop
+
+else ([no])
+  |LMS|
+  :Add Student\nto Waitlist;
+
+  |Email|
+  :Notify Student of\nWaitlist Status;
+  stop
+endif
+
+@enduml
