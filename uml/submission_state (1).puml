@@ -1,0 +1,85 @@
+@startuml submission_state
+
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 13
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #444444
+
+skinparam TitleFontSize 15
+skinparam TitleFontStyle bold
+skinparam TitleBorderThickness 1.5
+skinparam TitleBorderColor #555555
+skinparam TitleBorderRoundCorner 6
+skinparam TitleBackgroundColor #F7F7F7
+skinparam TitleHorizontalAlignment left
+
+skinparam state {
+    StartColor #222222
+    EndColor   #222222
+
+    BackgroundColor<<draft>>     #F0EFEA
+    BorderColor<<draft>>         #9E9D97
+    FontColor<<draft>>           #3d3d3a
+
+    BackgroundColor<<submitted>> #DDEAF7
+    BorderColor<<submitted>>     #5A9DD4
+    FontColor<<submitted>>       #185FA5
+
+    BackgroundColor<<review>>    #FDF0DC
+    BorderColor<<review>>        #D4A040
+    FontColor<<review>>          #7A5010
+
+    BackgroundColor<<graded>>    #EAE4F7
+    BorderColor<<graded>>        #8B6DC8
+    FontColor<<graded>>          #4B2EA0
+
+    BackgroundColor<<released>>  #D6F0EC
+    BorderColor<<released>>      #2EA88A
+    FontColor<<released>>        #0A6652
+
+    BackgroundColor<<regrade>>   #FDECEA
+    BorderColor<<regrade>>       #D06050
+    FontColor<<regrade>>         #8B2A1A
+}
+
+title Submission Lifecycle — LMS
+
+[*] --> Draft
+
+state "Draft" as Draft <<draft>>
+Draft : do / Student edits and attaches file
+
+state "Submitted" as Submitted <<submitted>>
+Submitted : entry / send receipt to Student (Email & Notification Service)
+Submitted : entry / notify Instructor
+Submitted : entry / set late flag if past deadline
+
+state "Under Review" as UnderReview <<review>>
+UnderReview : do / Instructor enters grade and feedback
+UnderReview : do / optionally attaches grading rubric
+
+state "Graded" as Graded <<graded>>
+Graded : entry / compute statistics (avg, min, max, pass rate)
+Graded : entry / update course grade report
+
+state "Released" as Released <<released>>
+Released : entry / notify Student (Email & Notification Service)
+Released : entry / grade and feedback visible to Student
+
+state "Regrade Requested" as RegradeRequested <<regrade>>
+RegradeRequested : do / Instructor re-evaluates submission
+
+Draft       --> Draft             : [file invalid OR deadline closed\nwithout late policy]
+Draft       --> Submitted         : Student submits\n[file valid AND (within deadline\nOR late submission allowed)]
+Submitted   --> Draft             : Student retracts\n[deadline still open]
+Submitted   --> UnderReview       : Instructor opens submission
+UnderReview --> UnderReview       : [grade out of range — re-enter]
+UnderReview --> Graded            : Instructor saves grade\n[grade in valid range]
+Graded      --> Released          : Instructor releases
+Released    --> RegradeRequested  : Student disputes grade\n[one regrade allowed per submission]
+RegradeRequested --> Released     : Instructor decision made\n[grade updated OR denied]
+Released    --> [*]
+
+@enduml
