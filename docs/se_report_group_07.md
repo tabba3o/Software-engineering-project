@@ -140,13 +140,13 @@ Part I establishes the boundary of the system and the wider environment it opera
 
 ### C4 Level 1 — System Context Diagram
 
-![C4 Level 1 — System Context](../uml/lms_c4_l1.png)
+![C4 Level 1 — System Context](../uml/C4_Context_LMS.png)
 
 The C4 Level 1 diagram shows the LMS as a single black box with the four classes of entities that interact with it. Three human actors operate the system through their browsers — **Student**, **Instructor**, and **Administrator** — each with a different set of responsibilities. Three external systems are integrated: the **Authentication System** validates user credentials and issues session tokens; the **University SIS** is the upstream source of canonical student records and the destination for term-end grade transcripts; the **Email & Notification Service** is the outbound channel for receipts, reminders, and grade-release messages. The diagram fixes the boundary of the system and identifies every party that the LMS must integrate with — no internal containers are visible at this level. This is the basis for every subsequent diagram: the actors reappear as use case actors in Part II, the external systems reappear as the lanes of the context activity diagram below, and the boundary defined here is the boundary every other model respects.
 
 ### C4 Level 2 — Container Diagram
 
-![C4 Level 2 — Container](../uml/c4_l2_container_lms.png)
+![C4 Level 2 — Container](../uml/C4_L2_Container_LMS.png)
 
 The C4 Level 2 diagram opens the black box from Level 1 and shows the four internal containers that make up the LMS. The **Web Application** (React SPA, served as static assets) is the only container the user interacts with directly; it issues HTTPS calls carrying JSON to the **Backend API Server** (Python/Django). The Backend orchestrates all domain logic and talks to two persistence containers: the **Relational Database** (PostgreSQL) over a JDBC-style connection for structured data — users, courses, enrollments, assessments, submissions, grades — and the **File Storage Service** (object storage) over HTTPS for binary artifacts — lecture materials, submission files, generated reports. The three external systems from Level 1 reappear here connected to the Backend API Server: the Authentication System over an OIDC/SAML protocol, the University SIS over a REST API for roster import and grade export, and the Email & Notification Service over SMTP and a push-notification API. This is the static decomposition that the high-level and developer sequence diagrams in Part II animate.
 
@@ -174,19 +174,19 @@ The composite use case diagrams collect every use case for one actor onto a sing
 
 #### Student — Composite
 
-![Student — Composite Use Cases](../uml/student_usecase.png)
+![Student — Composite Use Cases](../uml/StudentUseCase.png)
 
 The Student actor connects to all student-facing use cases of the LMS: **Log In**, **View Enrolled Courses**, **Access Course Materials**, **Submit Assignment**, **View Performance Report**, and **Receive Notifications**. The Email & Notification Service appears as a secondary actor on Receive Notifications. This diagram defines the surface area of the system that students touch — every other student-related artifact (sequence diagrams, activity diagrams, the Student class in Part III) refines a use case shown here.
 
 #### Instructor — Composite
 
-![Instructor — Composite Use Cases](../uml/instructor_usecase.png)
+![Instructor — Composite Use Cases](../uml/InstructorUseCase.png)
 
 The Instructor actor connects to all teaching and assessment use cases: **Log In**, **Upload Lecture Material**, **Create Assessment**, **Grade Submission**, **Provide Feedback**, **Manage Course Roster**, and **Post Announcements**. Two of these are detailed below as individual diagrams; the rest are in scope for the system but exercised through similar flows.
 
 #### Administrator — Composite
 
-![Administrator — Composite Use Cases](../uml/administrator_usecase.png)
+![Administrator — Composite Use Cases](../uml/AdministratorUseCase.png)
 
 The Administrator actor connects to platform-management use cases: **Log In**, **Manage User Accounts**, **Enroll Student**, **Assign Instructor to Course**, **Manage Course Offerings**, and **Generate Platform Report**. The University SIS appears as a secondary actor on Enroll Student because enrollment can be sourced either manually by the admin or via SIS roster sync.
 
@@ -196,7 +196,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-S1 — Submit Assignment (Student)
 
-![UC-S1 — Submit Assignment](../uml/student_submit_assignment.png)
+![UC-S1 — Submit Assignment](../uml/StudentSubmitAssignment.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -209,7 +209,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-S2 — Access Course Materials (Student)
 
-![UC-S2 — Access Course Materials](../uml/student_access_course_materials.png)
+![UC-S2 — Access Course Materials](../uml/StudentAccessCourseMaterials.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -222,7 +222,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-S3 — View Performance Report (Student)
 
-![UC-S3 — View Performance Report](../uml/student_view_performance_report.png)
+![UC-S3 — View Performance Report](../uml/StudentViewPerformanceReport.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -235,7 +235,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-I1 — Upload Lecture Material (Instructor)
 
-![UC-I1 — Upload Lecture Material](../uml/instructor_upload_lecture_material.png)
+![UC-I1 — Upload Lecture Material](../uml/InstructorUploadLectureMaterial.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -248,7 +248,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-I2 — Create Assessment (Instructor)
 
-![UC-I2 — Create Assessment](../uml/instructor_create_assessment.png)
+![UC-I2 — Create Assessment](../uml/InstructorCreateAssessment.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -261,7 +261,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-I3 — Grade Submission (Instructor)
 
-![UC-I3 — Grade Submission](../uml/instructor_grade_submission.png)
+![UC-I3 — Grade Submission](../uml/InstructorGradeSubmission.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -274,7 +274,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-A1 — Enroll Student (Administrator)
 
-![UC-A1 — Enroll Student](../uml/admin_enroll_student.png)
+![UC-A1 — Enroll Student](../uml/AdminEnrollStudent.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -287,7 +287,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-A2 — Assign Instructor to Course (Administrator)
 
-![UC-A2 — Assign Instructor to Course](../uml/admin_assign_instructor.png)
+![UC-A2 — Assign Instructor to Course](../uml/AdminAssignInstructor.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -300,7 +300,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-A3 — Generate Platform Report (Administrator)
 
-![UC-A3 — Generate Platform Report](../uml/admin_generate_report.png)
+![UC-A3 — Generate Platform Report](../uml/AdminGenerateReport.png)
 
 | Field | Detail |
 | :--- | :--- |
