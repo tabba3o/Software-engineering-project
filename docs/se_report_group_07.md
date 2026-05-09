@@ -7,6 +7,7 @@
 - **Course:** Software Engineering — CS13477 — Spring 2026
 - **Instructor:** *Dr. Samer Elkababji*
 - **Repository:** https://github.com/tabba3o/Software-engineering-project
+
 | # | Name | Student ID |
 | :---: | :--- | :--- |
 | 1 | *Mohammad Tabba'a* | *20220005* |
@@ -14,7 +15,6 @@
 | 3 | *Lojain Hamdan* | *20210576* |
 | 4 | *Jude Mamoon* | *20210415* |
 
----
 
 ## 2. Overview
 
@@ -30,7 +30,6 @@ The Learning Management System (LMS) is a web-based platform that supports onlin
 - **Pandoc** — conversion of the Markdown report into the final PDF deliverable.
 - **Git & GitHub** — version control, per-member commits, tagged releases (`v1.0.0`, `v2.0.0`).
 
----
 
 ## 3. Diagrams
 
@@ -68,7 +67,6 @@ The LMS is a hybrid system. Its dominant character is data-driven and a discrete
 - **State Diagram** (`submission_state.puml`) — the event-driven view: lifecycle of a Submission from `Draft → Submitted → Under Review → Graded → Released` with an optional `Regrade Requested` branch.
 - **State-Stimulus Table** — tabular companion to the state diagram listing every transition with current state, stimulus, guard, next state, and action.
 
----
 
 ## 4. Repo Structure
 
@@ -87,7 +85,6 @@ The LMS is a hybrid system. Its dominant character is data-driven and a discrete
 - **`/docs/`** — the report in Markdown source form and the final PDF deliverable.
 - **`/uml/`** — all PlantUML sources and their rendered PNG exports; the report references these PNGs via relative paths (`uml/*.png`).
 
----
 
 ## 5. Contributions
 
@@ -106,10 +103,10 @@ Work was distributed across the four parts of the project, with each member owni
 
 | Member | Number of Commits |
 | :--- | :---: |
-| *Jude Mamoon* | *10* |
+| *Jude Mamoon* | *11* |
 | *Tala Hammouri* | *11* |
 | *Lojain Hamdan* | *11* |
-| *Mohammad Tabba'a* | *10* |
+| *Mohammad Tabba'a* | *11* |
 
 \newpage
 
@@ -119,7 +116,6 @@ Work was distributed across the four parts of the project, with each member owni
 **Group 07 — CS13477 Software Engineering — Spring 2026**
 **Instructor:** Dr. Samer Elkababji
 
----
 
 ## System Description
 
@@ -131,7 +127,6 @@ The system is **predominantly data-driven**: every primary use case (deliver mat
 
 The report is organised in four parts following the project rubric: **Part I — Context** (C4 Level 1, C4 Level 2, and a context-scope swimlane activity diagram), **Part II — Interactions** (use case diagrams with descriptions, plus high-level and developer sequence diagrams), **Part III — Structure** (class diagram with all required relationship kinds), and **Part IV — Behavior** (internal-scope swimlane activity diagrams, a state diagram, and a state-stimulus table).
 
----
 
 ## Part I — Context
 
@@ -139,19 +134,19 @@ Part I establishes the boundary of the system and the wider environment it opera
 
 ### C4 Level 1 — System Context Diagram
 
-![C4 Level 1 — System Context](uml/lms_c4_l1.png)
+![C4 Level 1 — System Context](uml/C4_Context_LMS.png)
 
 The C4 Level 1 diagram shows the LMS as a single black box with the four classes of entities that interact with it. Three human actors operate the system through their browsers — **Student**, **Instructor**, and **Administrator** — each with a different set of responsibilities. Three external systems are integrated: the **Authentication System** validates user credentials and issues session tokens; the **University SIS** is the upstream source of canonical student records and the destination for term-end grade transcripts; the **Email & Notification Service** is the outbound channel for receipts, reminders, and grade-release messages. The diagram fixes the boundary of the system and identifies every party that the LMS must integrate with — no internal containers are visible at this level. This is the basis for every subsequent diagram: the actors reappear as use case actors in Part II, the external systems reappear as the lanes of the context activity diagram below, and the boundary defined here is the boundary every other model respects.
 
 ### C4 Level 2 — Container Diagram
 
-![C4 Level 2 — Container](uml/c4_l2_container_lms.png)
+![C4 Level 2 — Container](uml/C4_L2_Container_LMS.png)
 
 The C4 Level 2 diagram opens the black box from Level 1 and shows the four internal containers that make up the LMS. The **Web Application** (React SPA, served as static assets) is the only container the user interacts with directly; it issues HTTPS calls carrying JSON to the **Backend API Server** (Python/Django). The Backend orchestrates all domain logic and talks to two persistence containers: the **Relational Database** (PostgreSQL) over a JDBC-style connection for structured data — users, courses, enrollments, assessments, submissions, grades — and the **File Storage Service** (object storage) over HTTPS for binary artifacts — lecture materials, submission files, generated reports. The three external systems from Level 1 reappear here connected to the Backend API Server: the Authentication System over an OIDC/SAML protocol, the University SIS over a REST API for roster import and grade export, and the Email & Notification Service over SMTP and a push-notification API. This is the static decomposition that the high-level and developer sequence diagrams in Part II animate.
 
 ### Context Activity Diagram — Student Enrollment Process
 
-![Context Activity Diagram — Enrollment](uml/lms_act_context_enrollment.png)
+![Context Activity Diagram — Enrollment](uml/lms_act_context_swimlane.png)
 
 This is a context-scope swimlane activity diagram in the spirit of Sommerville's slide-16 Mentcare example: it shows one bounded cross-system business process and identifies the role each `«system»` participant plays. Each swimlane is one of the four systems from the C4 Level 1 — University SIS, Authentication System, Learning Management System, Email & Notification Service. Actions are business-process verbs at organizational granularity ("Publish Approved Student Records", "Provision Student Identity", "Confirm Enrollment", "Sync Enrollment Record") rather than UI clicks or database writes. The control flow includes two business decisions — *Enrollment Source?* (SIS sync vs. manual) and *Seat Available?* (yes vs. no) — and shows the cross-lane handoffs between LMS, SIS, and Email Service that complete the process. Each terminal branch ends at its own stop node so the diagram has no auto-merge artifacts.
 
@@ -163,7 +158,6 @@ The rubric for Part I lists "Activity Diagram with swimlanes". Sommerville (chap
 - [Activity Diagram — Grade Submissions (Scenario)](#2-activity-diagram--grade-submissions-scenario) — internal flow for UC-I3 (instructor grading loop with regrade-request sub-flow).
 - [Activity Diagram — Enroll Students (Scenario)](#3-activity-diagram--enroll-students-scenario) — internal flow for UC-A1 (administrator enrollment with prerequisite, capacity, and waitlist branches).
 
----
 
 ## Part II — Interactions
 
@@ -173,19 +167,19 @@ The composite use case diagrams collect every use case for one actor onto a sing
 
 #### Student — Composite
 
-![Student — Composite Use Cases](uml/student_usecase.png)
+![Student — Composite Use Cases](uml/StudentUseCase.png)
 
 The Student actor connects to all student-facing use cases of the LMS: **Log In**, **View Enrolled Courses**, **Access Course Materials**, **Submit Assignment**, **View Performance Report**, and **Receive Notifications**. The Email & Notification Service appears as a secondary actor on Receive Notifications. This diagram defines the surface area of the system that students touch — every other student-related artifact (sequence diagrams, activity diagrams, the Student class in Part III) refines a use case shown here.
 
 #### Instructor — Composite
 
-![Instructor — Composite Use Cases](uml/instructor_usecase.png)
+![Instructor — Composite Use Cases](uml/InstructorUseCase.png)
 
 The Instructor actor connects to all teaching and assessment use cases: **Log In**, **Upload Lecture Material**, **Create Assessment**, **Grade Submission**, **Provide Feedback**, **Manage Course Roster**, and **Post Announcements**. Two of these are detailed below as individual diagrams; the rest are in scope for the system but exercised through similar flows.
 
 #### Administrator — Composite
 
-![Administrator — Composite Use Cases](uml/administrator_usecase.png)
+![Administrator — Composite Use Cases](uml/AdministratorUseCase.png)
 
 The Administrator actor connects to platform-management use cases: **Log In**, **Manage User Accounts**, **Enroll Student**, **Assign Instructor to Course**, **Manage Course Offerings**, and **Generate Platform Report**. The University SIS appears as a secondary actor on Enroll Student because enrollment can be sourced either manually by the admin or via SIS roster sync.
 
@@ -195,7 +189,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-S1 — Submit Assignment (Student)
 
-![UC-S1 — Submit Assignment](uml/student_submit_assignment.png)
+![UC-S1 — Submit Assignment](uml/StudentSubmitAssignment.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -208,7 +202,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-S2 — Access Course Materials (Student)
 
-![UC-S2 — Access Course Materials](uml/student_access_course_materials.png)
+![UC-S2 — Access Course Materials](uml/StudentAccessCourseMaterials.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -221,7 +215,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-S3 — View Performance Report (Student)
 
-![UC-S3 — View Performance Report](uml/student_view_performance_report.png)
+![UC-S3 — View Performance Report](uml/StudentViewPerformanceReport.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -234,7 +228,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-I1 — Upload Lecture Material (Instructor)
 
-![UC-I1 — Upload Lecture Material](uml/instructor_upload_lecture_material.png)
+![UC-I1 — Upload Lecture Material](uml/InstructorUploadLectureMaterial.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -247,7 +241,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-I2 — Create Assessment (Instructor)
 
-![UC-I2 — Create Assessment](uml/instructor_create_assessment.png)
+![UC-I2 — Create Assessment](uml/InstructorCreateAssessment.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -260,7 +254,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-I3 — Grade Submission (Instructor)
 
-![UC-I3 — Grade Submission](uml/instructor_grade_submission.png)
+![UC-I3 — Grade Submission](uml/InstructorGradeSubmission.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -273,7 +267,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-A1 — Enroll Student (Administrator)
 
-![UC-A1 — Enroll Student](uml/admin_enroll_student.png)
+![UC-A1 — Enroll Student](uml/AdminEnrollStudent.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -286,7 +280,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-A2 — Assign Instructor to Course (Administrator)
 
-![UC-A2 — Assign Instructor to Course](uml/admin_assign_instructor.png)
+![UC-A2 — Assign Instructor to Course](uml/AdminAssignInstructor.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -299,7 +293,7 @@ For each of the nine principal use cases below, a dedicated diagram with `<<incl
 
 #### UC-A3 — Generate Platform Report (Administrator)
 
-![UC-A3 — Generate Platform Report](uml/admin_generate_report.png)
+![UC-A3 — Generate Platform Report](uml/AdminGenerateReport.png)
 
 | Field | Detail |
 | :--- | :--- |
@@ -354,7 +348,6 @@ The grading panel issues a GET for the queued submissions (Backend SELECT), the 
 
 The administrator UI POSTs the enrollment payload; on the SIS-sync branch the Backend issues a GET against the University SIS REST API and ingests the roster; the Backend INSERTs the enrollment rows into the database and triggers the Email & Notification Service for each student. This is the developer-level realization of UC-A1.
 
----
 
 ## Part III — Structure
 
@@ -374,7 +367,6 @@ The class diagram captures the static structure of the LMS in **ten domain class
 
 Multiplicities follow the rubric reference style: `"1"` and `"*"` quoted on either end, with the role label and relationship kind shown on the connector.
 
----
 
 ## Part IV — Behavior
 
@@ -439,7 +431,6 @@ The table below is the tabular companion to the state diagram in §4. It enumera
 | **Regrade Requested** | Instructor updates grade | Grade changed after re-evaluation | **Released** | Persist revised grade; send updated-grade notification to Student via Email & Notification Service |
 | **Regrade Requested** | Instructor denies regrade | Original grade kept | **Released** | Send regrade-denied notification to Student via Email & Notification Service |
 
----
 
 ## Closing Remarks
 
