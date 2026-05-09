@@ -1,12 +1,3 @@
-<!--
-  se_report_group_07.md
-  Software Engineering — CS13477 — Spring 2026
-  Group 07 — Learning Management System
-  NOTE: The README below is embedded verbatim as the first page (title page),
-        per project instructions: "README.md shall be included in the report
-        as the Title Page. This is mandatory."
--->
-
 # Learning Management System — Group 07
 
 ## 1. Group Info
@@ -15,6 +6,7 @@
 - **Case Study:** Group 07 — Learning Management System (LMS)
 - **Course:** Software Engineering — CS13477 — Spring 2026
 - **Instructor:** *Dr. Samer Elkababji*
+- **Repository:** https://github.com/tabba3o/Software-engineering-project
 
 | # | Name | Student ID |
 | :---: | :--- | :--- |
@@ -47,32 +39,35 @@ All diagram sources are stored as `.puml` files under `/uml/` and exported to `.
 
 ### Part I — Context
 
-- **C4 Level 1 — System Context Diagram** (`lms_c4_l1.puml`): shows the LMS as a single black box and its three human actors (Student, Instructor, Administrator) together with the three external systems it integrates with (Authentication System, University SIS, Email & Notification Service).
-- **C4 Level 2 — Container Diagram** (`c4_l2_container_lms.puml`): decomposes the LMS into its internal containers — Web Application (React SPA), Backend API Server (Python/Django), Relational Database (PostgreSQL), and File Storage Service (Object Storage) — and their protocols.
-- **Activity Diagrams with Swimlanes** — one per key scenario:
-  - `act_submit_assignment.puml` — Student submission flow including deadline and validation branches.
-  - `act_grade_submissions.puml` — Instructor grading loop with regrade-request sub-flow.
-  - `act_enroll_students.puml` — Administrator enrollment with prerequisite check, seat availability, and waitlisting.
+- **C4 Level 1 — System Context Diagram** (`lms_c4_l1.puml`): the LMS as a single black box with its three human actors (Student, Instructor, Administrator) and three external systems (Authentication System, University SIS, Email & Notification Service).
+- **C4 Level 2 — Container Diagram** (`c4_l2_container_lms.puml`): decomposes the LMS into Web Application (React SPA), Backend API Server (Python/Django), Relational Database (PostgreSQL), and File Storage Service (Object Storage).
+- **Context Activity Diagram with swimlanes** (`lms_act_context_enrollment.puml`): cross-system student enrollment process, with each swimlane being one of the four C4 L1 `«system»` participants (LMS, University SIS, Authentication System, Email & Notification Service).
 
 ### Part II — Interactions
 
-- **Composite Use Case Diagrams** (one per actor):
-  - `student_usecase.puml`
-  - `instructor_usecase.puml`
-  - `administrator_usecase.puml`
-- **Individual Use Case Diagrams** (with `<<include>>` / `<<extend>>`):
-  - Student: `student_submit_assignment.puml`, `student_access_course_materials.puml`, `student_view_performance_report.puml`
-  - Instructor: `instructor_upload_lecture_material.puml`, `instructor_grade_submission.puml`, `instructor_create_assessment.puml`
-  - Administrator: `admin_enroll_student.puml`, `admin_assign_instructor.puml`, `admin_generate_report.puml`
-- **Use Case Descriptions** (tabular): provided in the report for each individual use case.
-- **Sequence Diagrams — High-Level (stakeholder view):**
-  - `lms_seq_hl_submit_assignment.puml`
-  - `lms_seq_hl_grade_submissions.puml`
-  - `lms_seq_hl_enroll_students.puml`
-- **Sequence Diagrams — Detailed (developer view):**
-  - `lms_seq_dev_submit_assignment.puml`
-  - `lms_seq_dev_grade_submissions.puml`
-  - `lms_seq_dev_enroll_students.puml`
+- **Composite Use Case Diagrams** — one per actor: `student_usecase.puml`, `instructor_usecase.puml`, `administrator_usecase.puml`.
+- **Individual Use Case Diagrams** with `<<include>>` / `<<extend>>` relationships:
+  - Student: `student_submit_assignment.puml`, `student_access_course_materials.puml`, `student_view_performance_report.puml`.
+  - Instructor: `instructor_upload_lecture_material.puml`, `instructor_grade_submission.puml`, `instructor_create_assessment.puml`.
+  - Administrator: `admin_enroll_student.puml`, `admin_assign_instructor.puml`, `admin_generate_report.puml`.
+- **Use Case Descriptions** — tabular format, one per individual use case, embedded in the report.
+- **Sequence Diagrams — High-Level (stakeholder view):** `lms_seq_hl_submit_assignment.puml`, `lms_seq_hl_grade_submissions.puml`, `lms_seq_hl_enroll_students.puml`.
+- **Sequence Diagrams — Detailed (developer view):** `lms_seq_dev_submit_assignment.puml`, `lms_seq_dev_grade_submissions.puml`, `lms_seq_dev_enroll_students.puml`.
+
+### Part III — Structure
+
+- **Class Diagram** (`lms_class_diagram.puml`): ten domain classes with attributes, operations, and three relationship kinds — generalization (User → Student / Instructor / Administrator), composition (Course owns Enrollment / Assessment; Assessment owns Submission; Submission owns Grade), and aggregation (Course contains Material).
+
+### Part IV — Behavior
+
+The LMS is a hybrid system. Its dominant character is data-driven and a discrete event-driven slice exists in the submission lifecycle. Part IV combines both:
+
+- **Internal-scope Activity Diagrams with swimlanes** — the data-driven view at scenario scope:
+  - `act_submit_assignment.puml` — student submission scenario (UC-S1) with deadline and validation branches.
+  - `act_grade_submissions.puml` — instructor grading scenario (UC-I3) with regrade-request sub-flow.
+  - `act_enroll_students.puml` — administrator enrollment scenario (UC-A1) with prerequisite, capacity, and waitlist branches.
+- **State Diagram** (`submission_state.puml`) — the event-driven view: lifecycle of a Submission from `Draft → Submitted → Under Review → Graded → Released` with an optional `Regrade Requested` branch.
+- **State-Stimulus Table** — tabular companion to the state diagram listing every transition with current state, stimulus, guard, next state, and action.
 
 ---
 
@@ -80,16 +75,16 @@ All diagram sources are stored as `.puml` files under `/uml/` and exported to `.
 
 ```
 .
-├── README.md              # This file — title page of the report
+├── README.md                          # Title page of the report
 ├── docs/
-│   ├── se_report_group_07.md    # Full Markdown report (source)
-│   └── se_report_group_07.pdf   # Final PDF report (Pandoc output)
+│   ├── se_report_group_07.md          # Full Markdown report (source)
+│   └── se_report_group_07.pdf         # Final PDF report (Pandoc output)
 └── uml/
-    ├── *.puml             # PlantUML source for every diagram
-    └── *.png              # Rendered images embedded in the report
+    ├── *.puml                         # PlantUML source for every diagram
+    └── *.png                          # Rendered images embedded in the report
 ```
 
-- **`/README.md`** — the team’s title page; embedded as the first page of the report.
+- **`/README.md`** — the team's title page; embedded as the first page of the report.
 - **`/docs/`** — the report in Markdown source form and the final PDF deliverable.
 - **`/uml/`** — all PlantUML sources and their rendered PNG exports; the report references these PNGs via relative paths (`../uml/*.png`).
 
@@ -99,351 +94,354 @@ All diagram sources are stored as `.puml` files under `/uml/` and exported to `.
 
 ### Member Roles
 
+Work was distributed across the four parts of the project, with each member owning approximately one quarter of the deliverables and contributing to report editing.
+
 | Member | Role |
 | :--- | :--- |
-| *Mohammad Tabba'a* | *Activity diagrams & report editing* |
-| *Tala Hammouri* | *Use case diagrams & descriptions* |
-| *Lojain Hamdan* | *Sequence diagrams (HL & developer)* |
-| *Jude Mamoon* | *C4 L1(Context) & L2(Container) modelling* |
+| *Jude Mamoon* | Part I — C4 L1 (Context) & C4 L2 (Container) modelling; context-scope swimlane activity diagram; report editing. |
+| *Tala Hammouri* | Part II — Composite and individual use case diagrams; tabular use case descriptions; sequence diagrams; report editing. |
+| *Lojain Hamdan* | Part II — Sequence diagrams (HL & developer); class diagram; report editing. |
+| *Mohammad Tabba'a* | Part IV — Behaviour-scope activity diagrams, state diagram, and state-stimulus table; report editing. |
 
 ### Commits per Team Member
 
 | Member | Number of Commits |
 | :--- | :---: |
-| *Mohammad Tabba'a* | *6* |
-| *Tala Hammouri* | *7* |
-| *Lojain Hamdan* | *7* |
-| *Jude Mamoon* | *6* |
+| *Jude Mamoon* | *8* |
+| *Tala Hammouri* | *9* |
+| *Lojain Hamdan* | *8* |
+| *Mohammad Tabba'a* | *8* |
+
+\newpage
+
+# Software Engineering Project Report
+## Learning Management System
+
+**Group 07 — CS13477 Software Engineering — Spring 2026**
+**Instructor:** Dr. Samer Elkababji
 
 ---
 
-# 1. System Description
+## System Description
 
-## 1.1 Domain and Purpose
+The Learning Management System (LMS) is a web-based platform for online teaching, learning, and academic management. Three human actors interact with the system: **Students** access course materials, submit assignments, and view performance reports; **Instructors** upload lecture materials, create assessments, grade submissions, and distribute feedback; **Administrators** manage user accounts, course offerings, enrollment, and platform-wide reporting. The platform is integrated with three external systems: an **Authentication System** (single sign-on for all users), a **University Student Information System (SIS)** (canonical student records and roster sync), and an **Email & Notification Service** (deadline reminders, submission receipts, grade-release notifications).
 
-The Learning Management System (LMS) modelled in this project is a web-based platform that supports the full lifecycle of online teaching and learning within a higher-education institution. It is the central workspace where instructors publish course materials and assessments, students submit work and retrieve feedback, and administrators manage enrollments, teaching assignments, and platform-wide reports. The system is assumed to be operated by a single university and to serve its registered members only — access to every feature is mediated by authenticated user accounts with role-based authorization (Student, Instructor, Administrator).
+Internally, the LMS is composed of four containers: a **Web Application** (React single-page application) that renders the user interface; a **Backend API Server** (Python/Django) that exposes a REST API and orchestrates all domain logic; a **Relational Database** (PostgreSQL) that persists users, courses, enrollments, assessments, submissions, and grades; and a **File Storage Service** (object storage) that holds the binary artifacts — lecture materials, submission files, and generated reports.
 
-## 1.2 Scope and Boundary
+The system is **predominantly data-driven**: every primary use case (deliver materials, submit assignment, grade submission, generate report) is a transformation pipeline that moves data through validation into persistence and out again as notifications. A discrete event-driven slice exists in the **submission lifecycle**, where a submission progresses through a finite set of states (Draft → Submitted → Under Review → Graded → Released, with an optional Regrade Requested branch). The behavior modelling in Part IV reflects this hybrid nature by combining swimlane activity diagrams (data-driven flows) with a state diagram and a state-stimulus table (event-driven slice).
 
-The LMS does **not** own identity, academic records, or message delivery — each of these concerns is delegated to an external system:
-
-- **Authentication System** (university SSO / LDAP) — the single source of truth for user identity and credentials.
-- **University Student Information System (SIS)** — the system of record for enrollment data, academic history, and final grade transfers; the LMS synchronizes with it rather than replicating it.
-- **Email & Notification Service** — the outbound channel used to send deadline reminders, grade-release notifications, and enrollment confirmations.
-
-Inside its own boundary, the LMS is responsible for: course-material hosting, assessment authoring and configuration, submission lifecycle (upload, late-flagging, storage), grading workflow, feedback release, performance reporting for students, and platform reporting for administrators. The C4 Level 2 container diagram decomposes this into a React Single-Page Application (the user interface), a Django-based Backend API Server (all business logic), a PostgreSQL relational database (users, courses, assignments, grades), and an object storage service (lecture files and submissions). Asynchronous work such as notification dispatch is an internal concern of the Backend API and therefore not elevated to an L2 container.
-
-## 1.3 Stakeholders and Key Flows
-
-Three primary human actors drive the system:
-
-- **Student** — browses enrolled courses, downloads materials, submits assignments (with optional late-flag extension), and views per-course performance reports.
-- **Instructor** — uploads lecture materials, creates assessments with configurable deadlines and attempt policies, and grades submissions with written and optional inline feedback.
-- **Administrator** — enrolls students individually or in batches from the SIS, assigns instructors to course offerings, and generates platform-level reports.
-
-Three end-to-end scenarios are modelled in depth across activity and sequence diagrams because they exercise the system's core capabilities and touch every container: **Submit Assignment**, **Grade Submission**, and **Enroll Student in Course**.
-
-## 1.4 Modelling Approach
-
-The project follows the workflow prescribed in the project instructions. **Part I (Context)** establishes the system boundary and data-flow structure via C4 Levels 1 and 2 and three swimlane activity diagrams. **Part II (Interactions)** captures functional requirements through composite and individual use case diagrams, tabular use case descriptions (SD06a slide 21 format), and both stakeholder-level and developer-level sequence diagrams for the three core scenarios. Parts III (Structure — class diagram) and IV (Behavior — DFD / state) are planned for the final tagged version (`v2.0.0`) and will build on the vocabulary fixed by the artifacts in this report.
+The report is organised in four parts following the project rubric: **Part I — Context** (C4 Level 1, C4 Level 2, and a context-scope swimlane activity diagram), **Part II — Interactions** (use case diagrams with descriptions, plus high-level and developer sequence diagrams), **Part III — Structure** (class diagram with all required relationship kinds), and **Part IV — Behavior** (internal-scope swimlane activity diagrams, a state diagram, and a state-stimulus table).
 
 ---
 
-# 2. Part I — Context
+## Part I — Context
 
-All diagrams in this section are rendered from the corresponding `.puml` sources in `/uml/` and embedded as PNGs. Each subsection presents the diagram followed by its explanation.
+Part I establishes the boundary of the system and the wider environment it operates in. The two C4 diagrams below give the static view (system-as-black-box and the internal containers); the **context activity diagram** that follows gives the dynamic view of the cross-system business process the LMS participates in. The internal scenario activity diagrams (one per primary use case) are placed in [Part IV — Behavior](#part-iv--behavior) because they describe internal system behavior rather than external business context — see the cross-references at the end of this section.
 
-## 2.1 C4 Level 1 — System Context Diagram
+### C4 Level 1 — System Context Diagram
 
-![C4 L1 — System Context Diagram](../uml/C4_Context_LMS.png)
+![C4 Level 1 — System Context](../uml/lms_c4_l1.png)
 
-This is the highest-level view of the LMS. The system itself appears as a single box; everything outside that box is either a human user or an external system the LMS depends on.
+The C4 Level 1 diagram shows the LMS as a single black box with the four classes of entities that interact with it. Three human actors operate the system through their browsers — **Student**, **Instructor**, and **Administrator** — each with a different set of responsibilities. Three external systems are integrated: the **Authentication System** validates user credentials and issues session tokens; the **University SIS** is the upstream source of canonical student records and the destination for term-end grade transcripts; the **Email & Notification Service** is the outbound channel for receipts, reminders, and grade-release messages. The diagram fixes the boundary of the system and identifies every party that the LMS must integrate with — no internal containers are visible at this level. This is the basis for every subsequent diagram: the actors reappear as use case actors in Part II, the external systems reappear as the lanes of the context activity diagram below, and the boundary defined here is the boundary every other model respects.
 
-- **Human actors.** The *Student*, *Instructor*, and *Administrator* are the three user roles the system must serve. Each has a distinct, non-overlapping set of interactions, summarized by the verb phrase on their relationship to the LMS (e.g., the Student "accesses course resources, submits assignments, and views performance reports" while the Instructor "uploads lecture materials, creates assessments, and manages grades").
-- **External systems.** Three systems sit outside the boundary and are deliberately kept out of scope for implementation: the *Authentication System* (identity verification via SSO/LDAP), the *University Student Information System* (enrollment records, academic history, grade transfers), and the *Email & Notification Service* (outbound deadline reminders and feedback notifications).
-- **Directionality.** Users interact with the LMS; the LMS in turn calls out to the three external systems. This one-way outbound pattern from LMS to externals is preserved at Level 2 and in the sequence diagrams.
+### C4 Level 2 — Container Diagram
 
-The point of this diagram is to fix the system boundary before any structural detail is introduced: it answers "who uses the LMS, and what does it depend on?" in a single picture.
+![C4 Level 2 — Container](../uml/c4_l2_container_lms.png)
 
-## 2.2 C4 Level 2 — Container Diagram
+The C4 Level 2 diagram opens the black box from Level 1 and shows the four internal containers that make up the LMS. The **Web Application** (React SPA, served as static assets) is the only container the user interacts with directly; it issues HTTPS calls carrying JSON to the **Backend API Server** (Python/Django). The Backend orchestrates all domain logic and talks to two persistence containers: the **Relational Database** (PostgreSQL) over a JDBC-style connection for structured data — users, courses, enrollments, assessments, submissions, grades — and the **File Storage Service** (object storage) over HTTPS for binary artifacts — lecture materials, submission files, generated reports. The three external systems from Level 1 reappear here connected to the Backend API Server: the Authentication System over an OIDC/SAML protocol, the University SIS over a REST API for roster import and grade export, and the Email & Notification Service over SMTP and a push-notification API. This is the static decomposition that the high-level and developer sequence diagrams in Part II animate.
 
-![C4 L2 — Container Diagram](../uml/C4_L2_Container_LMS.png)
+### Context Activity Diagram — Student Enrollment Process
 
-This diagram opens the LMS box from Level 1 and shows the separately runnable/deployable units that realize it. Four containers are inside the boundary:
+![Context Activity Diagram — Enrollment](../uml/lms_act_context_swimlane.png)
 
-- **Web Application** (React.js SPA) — runs in the user's browser. Every interaction starts here; it hosts the UI for browsing courses, submitting assignments, grading, and administration.
-- **Backend API Server** (Python / Django) — the single hub where all business logic lives: authentication orchestration, course operations, assignment lifecycle, grading, and notification dispatch. Choosing Django reflects the de-facto LMS backend stack (edX, Open edX).
-- **Relational Database** (PostgreSQL) — the centralized store for users, courses, assignments, submissions, grades, and audit logs. Every structured domain record lives here.
-- **File Storage Service** (Object Storage / AWS S3) — binary content (lecture slides, PDFs, videos, submission files) is kept out of the relational database and served from object storage. This mirrors Simon Brown's *Statement Store* pattern from the Internet Banking reference.
+This is a context-scope swimlane activity diagram in the spirit of Sommerville's slide-16 Mentcare example: it shows one bounded cross-system business process and identifies the role each `«system»` participant plays. Each swimlane is one of the four systems from the C4 Level 1 — University SIS, Authentication System, Learning Management System, Email & Notification Service. Actions are business-process verbs at organizational granularity ("Publish Approved Student Records", "Provision Student Identity", "Confirm Enrollment", "Sync Enrollment Record") rather than UI clicks or database writes. The control flow includes two business decisions — *Enrollment Source?* (SIS sync vs. manual) and *Seat Available?* (yes vs. no) — and shows the cross-lane handoffs between LMS, SIS, and Email Service that complete the process. Each terminal branch ends at its own stop node so the diagram has no auto-merge artifacts.
 
-Protocols are annotated on every edge: users talk to the SPA over **HTTPS**; the SPA calls the API over **HTTPS / JSON**; the API persists via **SQL** and **S3 API**; and the API reaches external systems via **HTTPS / SMTP** (email), **HTTPS / LDAP** (auth), and **HTTPS / JSON** (SIS). Verb phrases on external-facing edges are preserved from Level 1 so the two levels can be read together without contradiction.
+### Cross-references to Part IV — Behavior
 
-Design decisions to note:
+The rubric for Part I lists "Activity Diagram with swimlanes". Sommerville (chapter 5, *System Modelling*) draws a line between **context-scope** activity diagrams (which model business processes the system participates in alongside other `«system»` participants) and **internal-scope / scenario** activity diagrams (which model how the system itself behaves). The diagram above is context-scope and belongs here. The three internal-scope activity diagrams — one per primary use case — describe internal system behavior and are placed in Part IV. They are listed below for navigation:
 
-1. **Static-asset delivery (CDN / Nginx)** is treated as a Level 3 / deployment concern and not elevated to an L2 container.
-2. **Asynchronous notification** (broker, worker process) is a Level 3 component-level concern of the Backend API; at L2 we expose only the architectural capability — the system sends notifications to an external email service.
-
-## 2.3 Activity Diagram (Swimlanes) — Submit Assignment
-
-![Activity — Submit Assignment](../uml/act_submit_assignment.png)
-
-Three swimlanes — *Student*, *System*, *Instructor* — partition the flow by responsibility. The student authenticates, navigates to the assignment, and prepares a file. Control crosses to the *System* lane for a deadline check: if the deadline has passed and late submissions are allowed, the flow enters the `«extend» Flag Late Submission` branch; if late submissions are **not** allowed, the flow terminates with a "Submission Closed" message. Otherwise, the system validates the uploaded file (type, size, completeness) and, if invalid, returns control to the student to fix and re-upload. Once stored, the system records the submission with a timestamp and then **forks** into two parallel actions: sending a receipt to the student and notifying the instructor. Both branches join before the flow stops.
-
-The diagram covers the three decision points that distinguish a submission from simply uploading a file: **deadline**, **file validity**, and **storage success**, plus the parallel notification fan-out to two actors.
-
-## 2.4 Activity Diagram (Swimlanes) — Grade Submissions
-
-![Activity — Grade Submissions](../uml/act_grade_submissions.png)
-
-This diagram models the instructor's full grading loop plus the student's downstream reaction path. The instructor logs in, opens the grading panel, and enters a `repeat` block over each ungraded submission. Inside the loop, a *submission present?* decision routes missing work to a policy-default zero grade, while present work goes through the grade + feedback entry path with an optional `Attach Grading Rubric / Reference File` branch. The system validates that the grade is in range; out-of-range values loop back to the instructor for correction. After the loop terminates, the system computes per-assignment statistics (average, min, max, pass rate) and updates the course grade report.
-
-The flow then crosses into the *Student* lane, where the student receives the feedback notification and views the grade. A **regrade dispute** branch models the escalation path: the student can file a regrade request, the instructor reviews it, and the system either updates the grade and notifies the student, or notifies them that the regrade was denied. Swimlanes make the handover between instructor, system, and student explicit, which matters here because grading is an inherently multi-actor interaction.
-
-## 2.5 Activity Diagram (Swimlanes) — Enroll Students in Courses
-
-![Activity — Enroll Students in Courses](../uml/act_enroll_students.png)
-
-The administrator's enrollment flow is the most decision-rich of the three because it must respect institutional policy. After login and student selection, control passes to the *System* lane to retrieve the student's academic record from the University SIS and check prerequisites. A failed prerequisite check forks: the administrator may either **override** (with a mandatory justification logged per institution policy) or **cancel** the enrollment. Next, the system checks seat availability. If the course is full, the administrator may add the student to a **waitlist**; the system then monitors for freed seats and auto-enrolls the next waitlisted student when one appears.
-
-On successful enrollment, the system performs three parallel actions in a `fork`: sending an enrollment confirmation email, updating the instructor's course roster, and logging the action in the audit trail. Control then crosses into both the *Student* and *Instructor* lanes — the student receives the confirmation and can access the course dashboard, and the instructor sees the updated roster. The diagram's branching captures all three real-world exception paths (missing prerequisites, full course with waitlist, override with justification) that a plain "happy path" flow would hide.
+- [Activity Diagram — Submit Assignment (Scenario)](#1-activity-diagram--submit-assignment-scenario) — internal flow for UC-S1 (student submission with deadline and validation branches).
+- [Activity Diagram — Grade Submissions (Scenario)](#2-activity-diagram--grade-submissions-scenario) — internal flow for UC-I3 (instructor grading loop with regrade-request sub-flow).
+- [Activity Diagram — Enroll Students (Scenario)](#3-activity-diagram--enroll-students-scenario) — internal flow for UC-A1 (administrator enrollment with prerequisite, capacity, and waitlist branches).
 
 ---
 
-# 3. Part II — Interactions
+## Part II — Interactions
 
-## 3.1 Use Case Diagrams
+### Composite Use Case Diagrams
 
-### 3.1.1 Composite Use Case Diagram — Student
+The composite use case diagrams collect every use case for one actor onto a single diagram so the actor's overall span of responsibility is visible at a glance. Each composite diagram is supplemented by detailed individual use case diagrams further down.
 
-![Composite Use Cases — Student](../uml/StudentUseCase.png)
+#### Student — Composite
 
-This is the top-level catalogue of every capability the LMS exposes to a Student. Ten use cases are listed: viewing enrolled courses, accessing course materials, viewing assignment deadlines, submitting assignments, withdrawing a submission, viewing feedback and grades, viewing per-course performance, viewing overall academic performance, and receiving notifications. The diagram is intentionally flat — no `<<include>>` or `<<extend>>` relationships are shown here; decomposition is handled in the individual use case diagrams below. The point of this view is to give stakeholders a one-glance inventory of "everything a student can do" before drilling into any single flow.
+![Student — Composite Use Cases](../uml/student_usecase.png)
 
-### 3.1.2 Composite Use Case Diagram — Instructor
+The Student actor connects to all student-facing use cases of the LMS: **Log In**, **View Enrolled Courses**, **Access Course Materials**, **Submit Assignment**, **View Performance Report**, and **Receive Notifications**. The Email & Notification Service appears as a secondary actor on Receive Notifications. This diagram defines the surface area of the system that students touch — every other student-related artifact (sequence diagrams, activity diagrams, the Student class in Part III) refines a use case shown here.
 
-![Composite Use Cases — Instructor](../uml/InstructorUseCase.png)
+#### Instructor — Composite
 
-The instructor's catalogue mirrors the student's in structure but covers teaching capabilities: managing lecture materials, creating assessments, scheduling assessment visibility, grading submissions, providing feedback, managing course grades, viewing the course roster, monitoring student activity, tracking progress, and posting announcements. Ten use cases, no inheritance or inclusion — again, intentionally flat at this level.
+![Instructor — Composite Use Cases](../uml/instructor_usecase.png)
 
-### 3.1.3 Composite Use Case Diagram — Administrator
+The Instructor actor connects to all teaching and assessment use cases: **Log In**, **Upload Lecture Material**, **Create Assessment**, **Grade Submission**, **Provide Feedback**, **Manage Course Roster**, and **Post Announcements**. Two of these are detailed below as individual diagrams; the rest are in scope for the system but exercised through similar flows.
 
-![Composite Use Cases — Administrator](../uml/AdministratorUseCase.png)
+#### Administrator — Composite
 
-Seven platform-governance use cases are attributed to the Administrator: managing user accounts, enrolling students, assigning instructors, managing course offerings, configuring system settings, generating platform reports, and monitoring activity. The smaller use case count (vs. Student and Instructor) reflects the fact that the Administrator's role is operational rather than day-to-day content-centric.
+![Administrator — Composite Use Cases](../uml/administrator_usecase.png)
 
-### 3.1.4 Submit Assignment — Student
+The Administrator actor connects to platform-management use cases: **Log In**, **Manage User Accounts**, **Enroll Student**, **Assign Instructor to Course**, **Manage Course Offerings**, and **Generate Platform Report**. The University SIS appears as a secondary actor on Enroll Student because enrollment can be sourced either manually by the admin or via SIS roster sync.
 
-![Submit Assignment — Individual UC](../uml/StudentSubmitAssignment.png)
+### Individual Use Case Diagrams and Descriptions
 
-This diagram unpacks the single *Submit Assignment* use case. The Student actor is connected to the base use case, while two supporting actors — *File Storage Service* and *Email & Notification Service* — participate in included sub-steps. Four use cases are **always** invoked via `<<include>>`: *Log In*, *Select Assignment*, *Store Submission File*, and *Send Submission Receipt*. One use case extends the base conditionally: *Flag Late Submission* `<<extend>>`s *Submit Assignment* only when the submission arrives after the deadline and the instructor has allowed late submissions. The full scenario (data, stimulus, response, exceptions) is in the tabular description in section 3.2.1.
+For each of the nine principal use cases below, a dedicated diagram with `<<include>>` and `<<extend>>` relationships is followed by a tabular description (Actors, Description, Data, Stimulus, Response, Comments) in the format introduced by Sommerville's *Mentcare: Transfer data* example.
 
-### 3.1.5 Access Course Materials — Student
+#### UC-S1 — Submit Assignment (Student)
 
-![Access Course Materials — Individual UC](../uml/StudentAccessCourseMaterials.png)
+![UC-S1 — Submit Assignment](../uml/student_submit_assignment.png)
 
-The Student actor triggers *Access Course Materials*, which `<<include>>`s four sub-steps that always run: *Log In*, *Select Course*, *Retrieve Material File* (which involves the File Storage Service), and *Log Material View* (for instructor analytics). The *Download Material* use case `<<extend>>`s the base optionally — it executes only if the student chooses to save a local copy. Materials whose scheduled visibility is not yet open are filtered out at the retrieval step.
-
-### 3.1.6 View Course Performance Report — Student
-
-![View Course Performance Report — Individual UC](../uml/StudentViewPerformanceReport.png)
-
-Four always-included sub-steps decompose the base: *Log In*, *Select Course*, *Aggregate Assignment Grades*, and *Calculate Course Grade* (applying the configured weights). A single extension, *Export Report as PDF*, is invoked optionally when the student requests an offline copy. Unreleased (draft) grades are excluded from the aggregation — a business rule captured in the use case description.
-
-### 3.1.7 Upload Lecture Material — Instructor
-
-![Upload Lecture Material — Individual UC](../uml/InstructorUploadLectureMaterial.png)
-
-The Instructor uploads a new material (slides, PDF, video, link). Four included sub-steps always run: *Log In*, *Select Course*, *Store Material File* (via File Storage Service), and *Notify Students of New Material* (via Email & Notification Service). The *Set Material Visibility* extension applies when the instructor schedules or hides the material; in that case notification dispatch is **deferred** until the visibility window opens. The Student actor appears on the diagram because students are the downstream recipients of the notification.
-
-### 3.1.8 Grade Submission — Instructor
-
-![Grade Submission — Individual UC](../uml/InstructorGradeSubmission.png)
-
-The instructor opens a student's submission, enters a grade and feedback, and releases it. Three `<<include>>`s: *Log In*, *View Submission*, and *Send Feedback Notification*. Note that *View Submission* is also directly accessible by the **Student** actor (who opens their own submission to read the feedback) — this is why both Student and Instructor appear on the diagram. *Add Inline Comment* `<<extend>>`s the base optionally — inline commentary is not required to release a grade.
-
-### 3.1.9 Create Assessment — Instructor
-
-![Create Assessment — Individual UC](../uml/InstructorCreateAssessment.png)
-
-Four included sub-steps: *Log In*, *Select Course*, *Configure Submission Settings* (deadline, window, attempts, late policy), and *Notify Students of New Assessment*. Two extensions model optional authoring choices: *Attach Reference File* (brief, rubric, dataset) and *Schedule Assessment Visibility* (assessment hidden until a future time; notification deferred). The Student actor is present as the downstream recipient of the notification.
-
-### 3.1.10 Enroll Student in Course — Administrator
-
-![Enroll Student in Course — Individual UC](../uml/AdminEnrollStudent.png)
-
-One included sub-step is always run: *Log In*. Two use cases `<<extend>>` the base: *Import Enrollment from SIS* (an alternative bulk entry path that invokes the external SIS) and *Create User Account* (triggered only when an imported student does not yet have an LMS account). The diagram shows four actors in total: the Administrator (primary), the Student (recipient of the enrollment notification), the University SIS (source system for bulk import), and the Email & Notification Service (for confirmation). Duplicate-enrollment prevention is a system rule, documented in the use case description.
-
-### 3.1.11 Assign Instructor to Course — Administrator
-
-![Assign Instructor to Course — Individual UC](../uml/AdminAssignInstructor.png)
-
-Three included sub-steps always run: *Log In*, *Select Course Offering*, and *Select Instructor*. *Remove Previous Instructor* `<<extend>>`s the base only when the offering already has an instructor that must be replaced. A prerequisite handled **outside** this use case is that the selected user must already hold the instructor role — that is the responsibility of the separate *Manage User Accounts* use case, not a sub-step here. The Instructor actor is connected as the recipient of the assignment notification.
-
-### 3.1.12 Generate Platform Report — Administrator
-
-![Generate Platform Report — Individual UC](../uml/AdminGenerateReport.png)
-
-Four always-included sub-steps: *Log In*, *Select Report Type*, *Aggregate Platform Data*, and *Store Generated Report* (via File Storage Service). Two optional extensions: *Export as PDF* (when the administrator wants a downloadable file) and *Email Report to Stakeholders* (invoking Email & Notification Service). Large reports are generated asynchronously and the administrator is notified on completion — captured as a comment in the use case description.
-## 3.2 Use Case Descriptions (Tabular)
-
-Each individual use case above is specified in the six-row tabular format from SD06a slide 21 — *Actors*, *Description*, *Data*, *Stimulus*, *Response*, *Comments*. The *Comments* row of each base use case summarizes its `<<include>>` and `<<extend>>` relationships, so the tables are self-contained and can be read without the diagram.
-
-### 3.2.1 LMS: Submit Assignment
-
-| LMS: Submit Assignment | |
+| Field | Detail |
 | :--- | :--- |
-| **Actors** | Student, File Storage Service, Email & Notification Service |
-| **Description** | A student uploads one or more submission files to an open assignment within its submission window. Multiple uploads are permitted when the instructor has enabled multiple attempts; each upload replaces or supplements the previous per the assessment's configuration. The system records the submission, stores the files, and sends a receipt to the student. |
-| **Data** | Student credentials; course ID; assessment ID; submission file(s); submission timestamp; attempt number; (optional) late-submission flag |
-| **Stimulus** | Student clicks *Submit* on the assignment page after attaching the file(s). |
-| **Response** | The system authenticates the student, stores the file(s) in the File Storage Service, records the submission in the database, and sends a confirmation receipt to the student through the Email & Notification Service. |
-| **Comments** | The use case **includes** *Log In*, *Select Assignment*, *Store Submission File*, and *Send Submission Receipt* — all four always run. *Flag Late Submission* **extends** *Submit Assignment* only when the submission arrives after the deadline and the instructor has allowed late submissions. Uploads are rejected if the attempt limit is exceeded, the window is closed and late submission is not allowed, or the file violates size/type constraints. |
+| **Actors** | Student (primary); Email & Notification Service (secondary) |
+| **Description** | A student uploads a file as their submission against an open assessment. The system validates the file (type, size), checks the deadline, persists the submission, and dispatches a confirmation receipt and an instructor notification. |
+| **Data** | Assessment ID, submission file, student ID, current timestamp |
+| **Stimulus** | Student clicks *Submit* on the assessment page after attaching a file. |
+| **Response** | Submission persisted with an `isLate` flag; receipt email sent to student; new-submission notification sent to instructor. |
+| **Comments** | Includes *Authenticate User*. Extends *Late Submission Handling* when past deadline and late policy permits. |
 
-### 3.2.2 LMS: Access Course Materials
+#### UC-S2 — Access Course Materials (Student)
 
-| LMS: Access Course Materials | |
-| :--- | :--- |
-| **Actors** | Student, File Storage Service |
-| **Description** | A student opens one of the courses in which they are enrolled and browses the lecture materials and resources published by the instructor. Each view is logged for analytics. The student may optionally download a copy of a material file for offline access. |
-| **Data** | Student credentials; course ID; material ID; timestamp; view-event record |
-| **Stimulus** | Student navigates to a course and clicks on a material in the material list. |
-| **Response** | The system authenticates the student, retrieves the requested file from the File Storage Service, displays or streams it in the browser, and records a view event against that material for instructor analytics. |
-| **Comments** | The use case **includes** *Log In*, *Select Course*, *Retrieve Material File*, and *Log Material View* — all four always run. *Download Material* **extends** *Access Course Materials* optionally when the student chooses to save the file locally. Materials whose visibility is not yet open (scheduled by the instructor) are not returned by the retrieval step. |
+![UC-S2 — Access Course Materials](../uml/student_access_course_materials.png)
 
-### 3.2.3 LMS: View Course Performance Report
-
-| LMS: View Course Performance Report | |
+| Field | Detail |
 | :--- | :--- |
 | **Actors** | Student |
-| **Description** | A student opens the performance view for one of their enrolled courses and sees a breakdown of their grade: each assessment grade, weighted contributions, running course grade, and any released feedback. A similar, broader overall-academic view exists across all enrolled courses, but this use case focuses on the per-course report. |
-| **Data** | Student credentials; course ID; assessment grades; feedback text; grade weights; running course grade |
-| **Stimulus** | Student opens the *Grades* or *Performance* tab inside a course. |
-| **Response** | The system authenticates the student, aggregates all released assignment grades for that course, applies the configured weights to compute a running course grade, and displays the report. |
-| **Comments** | The use case **includes** *Log In*, *Select Course*, *Aggregate Assignment Grades*, and *Calculate Course Grade*. *Export Report as PDF* **extends** *View Course Performance Report* optionally when the student requests an offline copy. Unreleased grades (drafts) are not included in the aggregate. |
+| **Description** | A student browses the course page and opens or downloads a lecture material. The system serves the file from the File Storage Service after authorization. |
+| **Data** | Course ID, material ID, student ID |
+| **Stimulus** | Student clicks a material entry on the course page. |
+| **Response** | Material file streamed from File Storage Service to the student's browser. |
+| **Comments** | Includes *Authenticate User*. Extends *Track Material Access* when analytics is enabled. |
 
-### 3.2.4 LMS: Upload Lecture Material
+#### UC-S3 — View Performance Report (Student)
 
-| LMS: Upload Lecture Material | |
+![UC-S3 — View Performance Report](../uml/student_view_performance_report.png)
+
+| Field | Detail |
 | :--- | :--- |
-| **Actors** | Instructor, Student, File Storage Service |
-| **Description** | The instructor of a course uploads a new lecture material (slides, PDF, video, link) to one of their courses. On upload, the material is stored, added to the course's material list, and students enrolled in that course are notified. The instructor may optionally configure visibility so the material is hidden until a scheduled publication time. |
-| **Data** | Instructor credentials; course ID; material file; material metadata (title, description, type); (optional) visibility window |
-| **Stimulus** | Instructor clicks *Upload Material* on the course page, selects a file, and confirms. |
-| **Response** | The system authenticates the instructor, stores the file in the File Storage Service, appends the material to the course's material list, and sends a *new material* notification to enrolled students (unless publication is scheduled for a future time). |
-| **Comments** | The use case **includes** *Log In*, *Select Course*, *Store Material File*, and *Notify Students of New Material* — all four always run. *Set Material Visibility* **extends** *Upload Lecture Material* when the instructor opts to schedule or hide the material; in that case the notification step is deferred until the visibility window opens. |
+| **Actors** | Student |
+| **Description** | A student requests their performance summary across enrolled courses. The system aggregates released grades and renders the report in the browser. |
+| **Data** | Student ID, term filter |
+| **Stimulus** | Student opens the *Performance* tab. |
+| **Response** | Report displayed in the browser showing per-course grades and overall metrics. |
+| **Comments** | Includes *Authenticate User*. Only released grades are visible — submissions still under review or graded but not released are excluded. |
 
-### 3.2.5 LMS: Grade Submission
+#### UC-I1 — Upload Lecture Material (Instructor)
 
-| LMS: Grade Submission | |
+![UC-I1 — Upload Lecture Material](../uml/instructor_upload_lecture_material.png)
+
+| Field | Detail |
 | :--- | :--- |
-| **Actors** | Instructor, Student, Email & Notification Service |
-| **Description** | The instructor assigned to a course opens a student's submission, reviews it, enters a grade and written feedback, and releases it. The student is then notified that feedback is available. The instructor may optionally add inline comments anchored to specific locations in the submitted file. |
-| **Data** | Instructor credentials; course ID; assessment ID; student ID; submission file(s); grade value; feedback text; inline comments; release timestamp |
-| **Stimulus** | Instructor selects a student's submission in the grading view and enters a grade and feedback, then clicks *Release*. |
-| **Response** | The system authenticates the instructor, opens the submission via the submission viewer, persists the grade and feedback to the database, updates the course grade summary, and sends a *grade released* notification to the student through the Email & Notification Service. |
-| **Comments** | The use case **includes** *Log In*, *View Submission*, and *Send Feedback Notification*. *View Submission* is also directly accessible by the Student actor, who can open their own submission to review the feedback attached. *Add Inline Comment* **extends** *Grade Submission* optionally — inline commentary is not required to release a grade. |
+| **Actors** | Instructor |
+| **Description** | An instructor attaches a lecture material (slide deck, reading, video link) to a course. The system validates the upload, stores the file in the File Storage Service, persists the metadata row, and notifies enrolled students. |
+| **Data** | Course ID, material file, title, type |
+| **Stimulus** | Instructor clicks *Upload Material* on the course page. |
+| **Response** | Material stored and visible to enrolled students; new-material notification dispatched. |
+| **Comments** | Includes *Authenticate User*. Extends *Notify Students* when the instructor opts to announce the upload. |
 
-### 3.2.6 LMS: Create Assessment
+#### UC-I2 — Create Assessment (Instructor)
 
-| LMS: Create Assessment | |
+![UC-I2 — Create Assessment](../uml/instructor_create_assessment.png)
+
+| Field | Detail |
 | :--- | :--- |
-| **Actors** | Instructor, Student, File Storage Service |
-| **Description** | The instructor creates a new assessment (assignment, quiz) for one of their courses. They configure submission settings — deadline, window, number of allowed attempts, whether late submission is permitted and with what penalty. On creation the assessment becomes part of the course and enrolled students are notified. The instructor may optionally attach a reference file (brief, rubric, dataset) and/or schedule visibility so the assessment appears only at a future time. |
-| **Data** | Instructor credentials; course ID; assessment title; description; submission deadline; window open/close times; max attempts; late-submission policy; (optional) reference file; (optional) visibility schedule |
-| **Stimulus** | Instructor clicks *Create Assessment* on the course page and fills in the form. |
-| **Response** | The system authenticates the instructor, stores the assessment record and its settings, (if an attachment was provided) stores the reference file in the File Storage Service, and sends a *new assessment* notification to enrolled students (unless visibility is scheduled for a future time). |
-| **Comments** | The use case **includes** *Log In*, *Select Course*, *Configure Submission Settings*, and *Notify Students of New Assessment*. *Attach Reference File* **extends** *Create Assessment* when the instructor provides supporting material. *Schedule Assessment Visibility* **extends** *Create Assessment* when the instructor wants the assessment to appear to students at a future time; in that case the notification is deferred until the visibility window opens. |
+| **Actors** | Instructor |
+| **Description** | An instructor authors a new assessment with title, instructions, due date, max score, and late-submission policy. The system persists the assessment and opens the submission window for enrolled students. |
+| **Data** | Course ID, assessment title and instructions, due date, max score, late policy flag |
+| **Stimulus** | Instructor clicks *Create Assessment*. |
+| **Response** | Assessment persisted in `OPEN` state; enrolled students notified of the new assessment. |
+| **Comments** | Includes *Authenticate User*. |
 
-### 3.2.7 LMS: Enroll Student in Course
+#### UC-I3 — Grade Submission (Instructor)
 
-| LMS: Enroll Student in Course | |
+![UC-I3 — Grade Submission](../uml/instructor_grade_submission.png)
+
+| Field | Detail |
 | :--- | :--- |
-| **Actors** | Administrator, Student, University Student Information System, Email & Notification Service |
-| **Description** | An administrator enrolls one student or a batch of students into one or more course sections for the current academic term. Enrollment can be entered manually or imported as a batch from the external Student Information System (SIS). For each enrolled student, the course roster is updated, the student is granted access, and a notification is sent. If an imported student does not yet have an LMS account, one is created as part of the flow. |
-| **Data** | Administrator credentials; student ID(s); course/section ID(s); academic term; enrollment source (manual or SIS); (optional) new-account details |
-| **Stimulus** | Administrator submits a manual enrollment request or triggers a batch SIS sync. |
-| **Response** | The system authenticates the administrator, validates the enrollment request, updates the course roster, and sends an *enrollment* notification to each enrolled student through the Email & Notification Service. |
-| **Comments** | The use case **includes** *Log In*, *Update Course Roster*, and *Send Enrollment Notification*. *Import Enrollment from SIS* **extends** *Enroll Student in Course* as an alternative bulk entry path that invokes the external SIS. *Create User Account* **extends** the enrollment flow when an imported student does not yet have an LMS account. Duplicate enrollments are prevented. |
+| **Actors** | Instructor |
+| **Description** | An instructor opens a submitted assignment, reviews the file, enters a grade and feedback within the assessment's max-score range, and saves. The system updates the submission status, computes per-assessment statistics, and (on release) notifies the student. |
+| **Data** | Submission ID, grade value, feedback text, optional rubric attachment |
+| **Stimulus** | Instructor saves a grade in the grading panel. |
+| **Response** | Grade persisted; submission status advanced to *Graded* (and *Released* on subsequent release action); statistics updated; student notified on release. |
+| **Comments** | Includes *Authenticate User*. The Submission state diagram in Part IV models the lifecycle this use case drives. |
 
-### 3.2.8 LMS: Assign Instructor to Course
+#### UC-A1 — Enroll Student (Administrator)
 
-| LMS: Assign Instructor to Course | |
+![UC-A1 — Enroll Student](../uml/admin_enroll_student.png)
+
+| Field | Detail |
 | :--- | :--- |
-| **Actors** | Administrator, Instructor, Email & Notification Service |
-| **Description** | An administrator assigns an instructor to a specific course offering for an academic term. The system updates the course-teaching record and notifies the assigned instructor. If a previous instructor was already assigned to the offering, the administrator may remove them as part of the same workflow. |
-| **Data** | Administrator credentials; course/section ID; instructor user ID; academic term; (optional) previous instructor user ID |
-| **Stimulus** | Administrator clicks *Assign Instructor* on a course offering and picks a user with the instructor role. |
-| **Response** | The system authenticates the administrator, updates the course teaching record, grants the instructor management rights on that course, and sends an *assignment* notification to the instructor through the Email & Notification Service. |
-| **Comments** | The use case **includes** *Log In*, *Select Course Offering*, *Select Instructor*, and *Send Assignment Notification*. *Remove Previous Instructor* **extends** *Assign Instructor to Course* only when the offering already has an instructor that must be replaced. The selected user must already hold the *instructor* role (that is a prerequisite handled by the *Manage User Accounts* use case, not a sub-step here). |
+| **Actors** | Administrator (primary); University SIS (secondary) |
+| **Description** | The administrator enrolls a student in a course offering — either manually by entering a student ID or in bulk via SIS roster sync. The system validates capacity and prerequisites, creates the enrollment record, and dispatches an enrollment-confirmation email. |
+| **Data** | Student ID, course offering ID, source (manual / SIS), term |
+| **Stimulus** | Administrator submits the enrollment form, or a scheduled SIS sync runs. |
+| **Response** | Enrollment record created; student notified; SIS sync acknowledged. Waitlist entry created if capacity is full. |
+| **Comments** | Includes *Authenticate Administrator*. Extends *Sync from SIS* when the source is SIS. |
 
-### 3.2.9 LMS: Generate Platform Report
+#### UC-A2 — Assign Instructor to Course (Administrator)
 
-| LMS: Generate Platform Report | |
+![UC-A2 — Assign Instructor to Course](../uml/admin_assign_instructor.png)
+
+| Field | Detail |
 | :--- | :--- |
-| **Actors** | Administrator, File Storage Service, Email & Notification Service |
-| **Description** | An administrator generates a platform-level report — for example, course completion rates, system usage, audit logs, or per-course activity. The administrator selects a report type and parameters; the system aggregates the requested data from the database, stores a generated copy of the report in the File Storage Service, and offers export or email delivery. |
-| **Data** | Administrator credentials; report type; date range and filters; generated report file; (optional) recipient list for email |
-| **Stimulus** | Administrator opens the reports page, selects a report type, supplies parameters, and clicks *Generate*. |
-| **Response** | The system authenticates the administrator, aggregates the requested data, produces the report, stores a copy in the File Storage Service, and displays it. The administrator may then optionally export or email it. |
-| **Comments** | The use case **includes** *Log In*, *Select Report Type*, *Aggregate Platform Data*, and *Store Generated Report*. *Export as PDF* **extends** *Generate Platform Report* when the administrator requests a downloadable file. *Email Report to Stakeholders* **extends** *Generate Platform Report* when the administrator distributes it, invoking the Email & Notification Service. Large reports are generated asynchronously and the administrator receives a notification when ready. |
-## 3.3 Sequence Diagrams — High-Level (Stakeholder View)
+| **Actors** | Administrator |
+| **Description** | The administrator assigns an instructor to a course offering for a given term. The system records the assignment and grants the instructor edit access to the course. |
+| **Data** | Instructor ID, course offering ID, term |
+| **Stimulus** | Administrator submits the assignment form. |
+| **Response** | Assignment persisted; instructor notified by email. |
+| **Comments** | Includes *Authenticate Administrator*. |
 
-The high-level sequence diagrams use deliberately coarse lifelines — *Student / Instructor / Administrator*, *Frontend*, *Backend*, *File Storage Service*, *Email & Notification Service*, *University SIS* — and messages are written in business language. The point is that a non-technical reader (product owner, registry staff, lecturer reviewing the design) can follow the end-to-end flow without decoding HTTP verbs or SQL.
+#### UC-A3 — Generate Platform Report (Administrator)
 
-### 3.3.1 High-Level Sequence — Submit Assignment
+![UC-A3 — Generate Platform Report](../uml/admin_generate_report.png)
+
+| Field | Detail |
+| :--- | :--- |
+| **Actors** | Administrator |
+| **Description** | The administrator selects a report type (usage, completion, audit) and parameters. The system aggregates data across the database, renders the report, and offers it for download or email distribution. |
+| **Data** | Report type, term filter, scope filter |
+| **Stimulus** | Administrator clicks *Generate*. |
+| **Response** | Report rendered and stored in the File Storage Service; download link returned; optionally emailed to stakeholders. |
+| **Comments** | Includes *Authenticate Administrator*. Extends *Email Report to Stakeholders* when the admin opts to distribute. |
+
+### Sequence Diagrams — High-Level (Stakeholder View)
+
+The high-level sequence diagrams show end-to-end interactions at the granularity stakeholders care about: who talks to whom, and what the user-visible outcome is. Internal containers are abstracted as a single `LMS` lifeline.
+
+#### HL — Submit Assignment
 
 ![HL Sequence — Submit Assignment](../uml/lms_seq_hl_submit_assignment.png)
 
-Stakeholder-facing view of the submission flow. The Student authenticates through the Frontend → Backend, navigates to the assignment, uploads a file, and the Backend coordinates persistence with the File Storage Service and dispatches a receipt through the Email & Notification Service. The Instructor lifeline receives a "new submission" notification. The diagram complements — rather than duplicates — the activity diagram 2.3: the activity diagram shows branching, this sequence shows temporal ordering and actor interaction.
+The student initiates the submission, the LMS validates and persists, the Email & Notification Service dispatches a receipt to the student and a new-submission alert to the instructor. The `alt` frame branches on file validity. This is the stakeholder-level view of the data path that UC-S1 describes.
 
-### 3.3.2 High-Level Sequence — Grade Submissions
+#### HL — Grade Submissions
 
 ![HL Sequence — Grade Submissions](../uml/lms_seq_hl_grade_submissions.png)
 
-Stakeholder view of the grading workflow. The Instructor logs in and opens the grading panel; the Frontend pulls the submission list from the Backend; for each submission, the Instructor enters grade + feedback and the Backend persists them and triggers the Email & Notification Service to notify the Student. The Student lifeline receives the notification and reads the feedback. The sequence stops at the container level — it does not drop into service boundaries.
+The instructor opens the grading panel, the LMS returns the queued submissions, the instructor enters and releases a grade, and the Email & Notification Service alerts the student. The `alt` frame covers the regrade-request return path. This is the stakeholder-level view of UC-I3.
 
-### 3.3.3 High-Level Sequence — Enroll Students in Courses
+#### HL — Enroll Students
 
 ![HL Sequence — Enroll Students](../uml/lms_seq_hl_enroll_students.png)
 
-Stakeholder view of enrollment. The Administrator interacts with the Frontend, which calls the Backend to validate and persist the enrollment. The external *University SIS* lifeline appears when the enrollment is sourced as a bulk import. The Email & Notification Service lifeline is invoked to confirm the enrollment to the student. The diagram documents the cross-system handshake in a form that can be reviewed by registry staff and IT governance without engineering context.
+The administrator initiates an enrollment; the LMS either pulls the roster from the University SIS (SIS-sync branch) or processes a manual entry, then writes the enrollment and dispatches a confirmation through the Email & Notification Service. This is the stakeholder-level view of UC-A1.
 
-## 3.4 Sequence Diagrams — Detailed (Developer View)
+### Sequence Diagrams — Detailed (Developer View)
 
-The developer-level sequence diagrams replace the generic *Frontend* and *Backend* lifelines with concrete containers and components from the C4 Level 2 diagram: *Web UI*, *API Gateway*, domain services (*Assignment Service*, *Grading Service*, *Enrollment Service*), *Relational Database*, *File Storage Service*, and *Email & Notification Service*. Messages carry HTTP verbs and paths, SQL operations, and status codes. Phases are marked with `==` separators so the diagram can be read in chunks.
+The detailed sequence diagrams refine the stakeholder view by replacing the single `LMS` lifeline with the four internal containers from C4 Level 2 — Web Application, Backend API Server, Relational Database, File Storage Service — and showing the per-message granularity (HTTP requests, SQL operations, S3-style PUT/GET) that developers need.
 
-### 3.4.1 Developer-Level Sequence — Submit Assignment
+#### Dev — Submit Assignment
 
-![Developer Sequence — Submit Assignment](../uml/lms_seq_dev_submit_assignment.png)
+![Dev Sequence — Submit Assignment](../uml/lms_seq_dev_submit_assignment.png)
 
-The same scenario as 3.3.1 but drawn at the granularity a developer needs. Messages include `POST /auth/login`, `GET /courses/{courseId}/assignments`, the Assignment Service's `getAssignments(courseId, studentId)` call, SQL queries against the database, and object-storage `PUT` calls for the submission file. This is the primary view a backend engineer uses to derive endpoint contracts and wire up the Assignment Service.
+The browser POSTs the multipart form to the Backend; the Backend validates, then in parallel writes the file to the File Storage Service (PUT) and writes the submission row to the Relational Database (INSERT); on success it triggers the Email & Notification Service. This is the developer-level realization of UC-S1 against the C4 Level 2 architecture.
 
-### 3.4.2 Developer-Level Sequence — Grade Submissions
+#### Dev — Grade Submissions
 
-![Developer Sequence — Grade Submissions](../uml/lms_seq_dev_grade_submissions.png)
+![Dev Sequence — Grade Submissions](../uml/lms_seq_dev_grade_submissions.png)
 
-Developer-level realization of 3.3.2. The Grading Service, submission viewer component, database, and notification service are drawn explicitly; messages include the REST endpoints for fetching ungraded submissions, persisting a grade, and releasing feedback. The database lifeline makes visible **where** each piece of state is written (grade row, feedback row, audit entry) — information abstracted away in the HL sequence.
+The grading panel issues a GET for the queued submissions (Backend SELECT), the instructor PUTs the grade payload (Backend INSERT into the `grade` table, UPDATE on `submission`), and the release action triggers the Email & Notification Service. This is the developer-level realization of UC-I3.
 
-### 3.4.3 Developer-Level Sequence — Enroll Students in Courses
+#### Dev — Enroll Students
 
-![Developer Sequence — Enroll Students](../uml/lms_seq_dev_enroll_students.png)
+![Dev Sequence — Enroll Students](../uml/lms_seq_dev_enroll_students.png)
 
-Developer-level realization of 3.3.3. Shows the full chain of service calls from Web UI → API Gateway → Enrollment Service → Database / SIS Adapter, including the branch where the administrator triggers a bulk import (the SIS Adapter calls out to the external SIS and pages through the returned records). Account-creation and notification side-effects are drawn as distinct messages. This diagram is the primary input for implementing the enrollment endpoint and the SIS integration.
-
----
-
-# 4. Part III — Structure *(planned for v2.0.0)*
-
-The class diagram (attributes, operations, associations), generalization (inheritance), and aggregation / composition relationships will be delivered as part of the final tagged submission. They will build directly on the domain vocabulary fixed by the use cases and sequence diagrams in Part II — principal classes are expected to include `User`, `Student`, `Instructor`, `Administrator` (generalization hierarchy on `User`), `Course`, `CourseOffering`, `Assessment`, `Submission`, `Grade`, `Material`, `Enrollment`, and `Notification`.
-
-# 5. Part IV — Behavior *(planned for v2.0.0)*
-
-The LMS is predominantly **data-driven** (users, courses, submissions, grades flow through the database), with a small number of stateful workflows (submission lifecycle, grading lifecycle, enrollment lifecycle). The three swimlane activity diagrams in Part I (sections 2.3–2.5) already cover the data-driven side. For the event-driven side, a state diagram with a state-stimulus table is planned for the `Submission` entity (states: *Draft → Submitted → Under Review → Graded → Released*; optional *Regrade Requested → Regraded*).
+The administrator UI POSTs the enrollment payload; on the SIS-sync branch the Backend issues a GET against the University SIS REST API and ingests the roster; the Backend INSERTs the enrollment rows into the database and triggers the Email & Notification Service for each student. This is the developer-level realization of UC-A1.
 
 ---
 
-# 6. GitHub Repository
+## Part III — Structure
 
-- **Repository URL:** *https://github.com/tabba3o/Software-engineering-project*
-- **Current tag:** `v1.0.0` (first tagged version — Context + Interactions)
-- **Next tag:** `v2.0.0` (final tagged version — Structure + Behavior + full report)
+### Class Diagram
+
+![Class Diagram](../uml/lms_class_diagram.png)
+
+The class diagram captures the static structure of the LMS in **ten domain classes** and demonstrates all three structural-relationship requirements from the rubric: generalization, composition, and aggregation.
+
+**Generalization (inheritance).** `User` is an abstract parent class holding the common identity and authentication members (`userId`, `fullName`, `email`, `passwordHash`, `createdAt`, the derived `/isActive`, and the operations `login`, `logout`, `updateProfile`). Three specializations are defined: `Student` adds `studentNumber`, `program`, `academicYear`, and the operations `submitAssignment` and `viewPerformanceReport`; `Instructor` adds `employeeId`, `department`, and the operations `uploadMaterial`, `createAssessment`, `gradeSubmission`; `Administrator` adds `office` and the operations `enrollStudent`, `assignInstructor`, `manageUserAccount`, `generatePlatformReport`. This mirrors the three actors of the C4 Level 1 and the three composite use case diagrams in Part II.
+
+**Composition (whole-part with cascade delete).** Five compositions are present, all reflecting strict ownership semantics where the part has no meaning without its whole. `Course` composes `Enrollment` (an enrollment binds one student to one specific course; if the course is removed, all enrollment records go with it). `Course` composes `Assessment` (assessments are authored for one specific course, with course-bound questions and due dates). `Assessment` composes `Submission` (every submission targets exactly one assessment). `Submission` composes `Grade` (a grade exists only for the submission it evaluates). The chain `Course → Assessment → Submission → Grade` therefore cascade-deletes through the structure when a course is removed.
+
+**Aggregation (whole-part with shared / independent existence).** One aggregation is present: `Course` aggregates `Material`. Lecture materials — slide decks, readings, video links — are reusable artifacts. The same slide deck can be attached to a Spring 2026 course offering and again to a Spring 2027 offering, so the material is *contained in* a course rather than *exclusively owned by* it. This is the only relationship in the diagram with the aggregation diamond rather than the filled composition diamond.
+
+**Associations.** Eight plain associations capture the structural links that are neither inheritance nor whole-part. `Student → Enrollment` (registered via) and `Student → Submission` (submits) record the student's authorship of these records without owning them. `Instructor → Course` (teaches), `Instructor → Material` (uploads), `Instructor → Assessment` (authors), and `Instructor → Grade` (assigns) record the instructor's authorship and assignment role. `Administrator → Enrollment` (creates) and `Administrator → Course` (manages) record the admin's platform-management responsibilities — note that `Administrator → User` is intentionally absent because Administrator inherits from User and managing user accounts is captured as the operation `manageUserAccount`, not as a structural relationship from a subclass back to its parent.
+
+Multiplicities follow the rubric reference style: `"1"` and `"*"` quoted on either end, with the role label and relationship kind shown on the connector.
+
+---
+
+## Part IV — Behavior
+
+The LMS is a hybrid system: predominantly data-driven (almost every primary use case is a transformation pipeline that moves data through validation into persistence) with a discrete event-driven slice in the submission lifecycle. Per the rubric's "choose most representative model" guidance for hybrid systems, this section combines both:
+
+- The **data-driven view** is captured by three internal-scope swimlane activity diagrams covering the three primary scenarios (§1–§3 below). The **context-scope** activity diagram (cross-system enrollment process) is placed in [Part I — Context](#part-i--context) because it describes a wider business process the LMS participates in alongside its external `«system»` collaborators rather than internal system behavior.
+- The **event-driven view** is captured by a state diagram and a state-stimulus table for the `Submission` entity (§4–§5 below).
+
+### Activity Diagrams (Data-Driven View — Internal Scope)
+
+#### 1. Activity Diagram — Submit Assignment (Scenario)
+
+![Activity Diagram — Submit Assignment](../uml/act_submit_assignment.png)
+
+This is a scenario-scope swimlane activity diagram for UC-S1 (Submit Assignment). The lanes are role/component lanes — Student, System, File Storage Service — and the actions are at UI/persistence granularity: *Log In*, *Open Assessment*, *Validate File*, *Store Submission*, *Send Receipt*. Decision branches cover deadline-passed handling (with the late-policy sub-decision) and file-validity handling (with the fix-and-re-upload loop). A fork at the end dispatches the receipt to the student and the new-submission notification to the instructor in parallel. This diagram is the data-driven complement to the high-level and developer sequence diagrams of UC-S1 in Part II.
+
+#### 2. Activity Diagram — Grade Submissions (Scenario)
+
+![Activity Diagram — Grade Submissions](../uml/act_grade_submissions.png)
+
+Scenario-scope activity diagram for UC-I3 (Grade Submission). Lanes are Instructor and System. The flow covers opening the grading panel, retrieving the queued submissions, the per-submission grade-and-feedback loop with grade-validity check, persisting grade and updating submission status, releasing the grade, and the regrade-request sub-flow that loops back through the instructor's review. The repeat construct over the queue and the regrade sub-flow are the two structural features that the high-level sequence diagram abstracts away.
+
+#### 3. Activity Diagram — Enroll Students (Scenario)
+
+![Activity Diagram — Enroll Students](../uml/act_enroll_students.png)
+
+Scenario-scope activity diagram for UC-A1 (Enroll Student). Lanes are Administrator, System, and University SIS. The flow covers the source decision (manual vs. SIS sync), prerequisite check, capacity check with waitlist branch, enrollment-record creation, and confirmation dispatch. This is the data-driven view that complements the use case description and sequence diagrams of UC-A1.
+
+### Event-Driven View
+
+#### 4. State Diagram — Submission Lifecycle
+
+![State Diagram — Submission Lifecycle](../uml/submission_state.png)
+
+The state diagram models the lifecycle of a single `Submission` entity — the part of the LMS that is genuinely event-driven, in the sense that the same entity exists in a finite set of distinguishable states and transitions only on specific stimuli with guard conditions. Six states are present:
+
+- **Draft** — the default state before any submission attempt; the student can edit and attach a file.
+- **Submitted** — entered when a valid file is uploaded within the deadline (or with late policy permitting); entry actions dispatch the receipt, notify the instructor, and set the late flag.
+- **Under Review** — entered when the instructor opens the submission in the grading view; the instructor enters grade and feedback and may attach a rubric.
+- **Graded** — entered when a valid grade is saved; entry actions compute per-assessment statistics and update the course grade summary. The grade is not yet visible to the student.
+- **Released** — entered when the instructor explicitly releases the grade; entry actions notify the student and make the grade and feedback visible.
+- **Regrade Requested** — entered when the student disputes a released grade; the instructor re-evaluates and either updates the grade or denies the request, returning to Released.
+
+Self-loops are present on Draft (file invalid, deadline closed without late policy, attempt limit exceeded) and Under Review (grade out of valid range — re-enter). One backward transition exists from Submitted to Draft when the student retracts the submission while the deadline is still open. The terminal transition is from Released to the final state when the term ends and grades are archived.
+
+#### 5. State-Stimulus Table
+
+The table below is the tabular companion to the state diagram in §4. It enumerates every transition with the precision the diagram cannot show: the exact stimulus (event), guard condition, next state, and action taken on the transition.
+
+| Current State | Stimulus (Event) | Guard Condition | Next State | Action / Response |
+| :--- | :--- | :--- | :--- | :--- |
+| **Draft** | Student clicks Submit | File valid AND (within deadline OR late submission allowed) | **Submitted** | Store file in File Storage Service; record submission with timestamp; send confirmation receipt to Student via Email & Notification Service; notify Instructor; set late-submission flag if past deadline |
+| **Draft** | Student clicks Submit | File violates size / type constraints | **Draft** | Reject upload; display validation error; return control to Student to fix and re-upload |
+| **Draft** | Student clicks Submit | Submission window closed AND late submission NOT allowed | **Draft** | Display "Submission Closed" message; reject upload |
+| **Draft** | Student clicks Submit | Attempt limit exceeded | **Draft** | Reject upload; notify Student that attempt limit has been reached |
+| **Submitted** | Student withdraws submission | Deadline still open | **Draft** | Withdraw submission record |
+| **Submitted** | Instructor selects submission in grading view | — | **Under Review** | Open submission via submission viewer |
+| **Under Review** | Instructor saves grade | Grade value out of valid range | **Under Review** | Display out-of-range error; prompt Instructor to re-enter grade |
+| **Under Review** | Instructor saves grade | Grade value in valid range | **Graded** | Persist grade and written feedback to database; optionally attach inline comments / grading rubric / reference file |
+| **Graded** | Instructor clicks Release | — | **Released** | Compute per-assignment statistics (average, min, max, pass rate); update course grade summary; send grade-released notification to Student via Email & Notification Service |
+| **Released** | Student files regrade request | — | **Regrade Requested** | Record regrade request; notify Instructor |
+| **Regrade Requested** | Instructor updates grade | Grade changed after re-evaluation | **Released** | Persist revised grade; send updated-grade notification to Student via Email & Notification Service |
+| **Regrade Requested** | Instructor denies regrade | Original grade kept | **Released** | Send regrade-denied notification to Student via Email & Notification Service |
+
+---
+
+## Closing Remarks
+
+This report covers all four perspectives required by the rubric. **Part I — Context** establishes the boundary and internal decomposition through the C4 Level 1 and Level 2 diagrams together with one context-scope swimlane activity diagram (cross-system enrollment process); the latter satisfies the rubric's "Activity Diagram with swimlanes" line and complements the static C4 view with a dynamic, business-process view of how the LMS fits among its `«system»` collaborators. **Part II — Interactions** captures the interaction perspective via use case diagrams (composite and individual), tabular use case descriptions, and sequence diagrams at two levels of detail (high-level for stakeholders, developer-level against the C4 Level 2 architecture). **Part III — Structure** captures the static structure in a single class diagram with all three required relationship kinds — generalization, composition, and aggregation — across ten domain classes. **Part IV — Behavior** captures the system's hybrid character through three internal-scope swimlane activity diagrams (data-driven view) and a state diagram with state-stimulus table (event-driven view), with cross-references back to the context-scope activity diagram in Part I.
